@@ -15,7 +15,18 @@ window.Admin = (() => {
   function renderAll(){renderLanguageSelectors();renderRoleSelector();renderDashboardTabs();renderDashboard();renderSettings();renderQuestionBuilder();renderAudience();}
   function renderLanguageSelectors(){const options=(config.languages||[]).map(l=>`<option value="${E(l.code)}">${E(l.native)} — ${E(l.name)}</option>`).join('');['contentLang','questionLang','audienceLang'].forEach(id=>{const el=$(id);if(!el)return;const old=el.value;el.innerHTML=options;if([...el.options].some(o=>o.value===old))el.value=old;});}
   function renderRoleSelector(){const old=$('questionRole').value;$('questionRole').innerHTML=enabledRoles().map(r=>`<option value="${E(r.id)}">${E(roleLabel(r.id))}</option>`).join('');if([...$('questionRole').options].some(o=>o.value===old))$('questionRole').value=old;}
-  function renderDashboardTabs(){const tabs=[{id:'Overall',label:'Overall'},...enabledRoles().map(r=>({id:r.id,label:roleLabel(r.id)}))];if(!tabs.some(x=>x.id===dashRole))dashRole='Overall';$('dashboardTabs').innerHTML=tabs.map(x=>`<button class="dash-tab ${x.id===dashRole?'active':''}" onclick="Admin.selectDashRole(${JSON.stringify(x.id)})">${E(x.label)}</button>`).join('');}
+  function renderDashboardTabs(){
+    const tabs=[{id:'Overall',label:'Overall'},...enabledRoles().map(r=>({id:r.id,label:roleLabel(r.id)}))];
+    if(!tabs.some(x=>x.id===dashRole))dashRole='Overall';
+    const host=$('dashboardTabs');
+    host.innerHTML=tabs.map((x,i)=>`<button type="button" class="dash-tab ${x.id===dashRole?'active':''}" data-dash-index="${i}">${E(x.label)}</button>`).join('');
+    host.querySelectorAll('[data-dash-index]').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const idx=Number(btn.dataset.dashIndex);
+        if(Number.isInteger(idx)&&tabs[idx]) selectDashRole(tabs[idx].id);
+      });
+    });
+  }
   function selectDashRole(id){dashRole=id;renderDashboardTabs();renderDashboard();}
   function responseRole(r){return canonical(r?.role);}
   function scopedResponses(){return dashRole==='Overall'?responses:responses.filter(r=>responseRole(r)===dashRole);}
