@@ -1,39 +1,35 @@
-# V6.1 – Role Cards Fix
+# HAJR Safety Climate Survey V7 — Clean Rebuild
 
-The public **Select your role** screen is forced to show exactly these five questionnaire cards:
+This is a clean rebuild after the V6 dashboard regression. The previous dashboard stopped rendering after the top KPIs because the analytics script referenced an undefined translation helper. V7 centralizes shared helpers in `core.js` and has been rebuilt around one response schema.
 
-1. Executive Leader / Director
-2. Project Director / Manager
-3. Engineer / Supervisor
-4. Technician
-5. Labour / Worker
+## Final client requirements included
+- Public survey has **no Dashboard/Admin buttons**.
+- 10 languages: English, Arabic, Urdu, Hindi, Nepali, Bangla, Telugu, Tamil, Malayalam, Chinese.
+- Exactly five questionnaire/role cards:
+  1. Executive Leader / Director
+  2. Project Director / Manager
+  3. Engineer / Supervisor
+  4. Technician
+  5. Labour / Worker
+- Each role has its own 16-question questionnaire across the 8 Safety Climate factors.
+- Optional Comment / Justification under every rating question.
+- Strongly Disagree automatically opens the comment box.
+- Voice-to-text button on every comment and open question (browser support/permission required). Audio is not stored by the site.
+- Central Netlify Functions + Netlify Blobs backend.
+- Private Admin at `/admin.html` using Netlify `ADMIN_KEY`.
+- Fully editable project branding, names, translations, logos, roles, divisions and questions.
+- Dashboard tabs: Overall + each of the five questionnaires.
+- Overall/Favourable/Neutral/Unfavourable KPIs.
+- HSE-style 3-colour stacked results by Safety Climate factor and by question.
+- Project-wide Favourable Responses by Role horizontal chart.
+- Favourable Responses by Division.
+- Most favourable / most unfavourable question.
+- Comments & Justifications feed, including open feedback.
+- Recent response table.
+- CSV/JSON export and Reset Results.
 
-This patch also forces migration from any older cloud configuration so the old four cards cannot continue to appear.
+## Existing cloud data
+V7 continues using the same Netlify Blob stores (`hajr-safety-config` and `hajr-safety-responses`) so existing cloud responses are not deleted. Legacy V4/V5/V6 role names are mapped into the new five-role analytics where possible. Old question IDs are shown as Legacy question rows instead of silently disappearing.
 
-Desktop shows five cards in one row; tablet/mobile remains responsive.
-
-# HAJR Safety Climate Survey V6 – Five Role Questionnaires
-
-This update changes the questionnaire segmentation exactly to:
-
-1. Executive Leader / Director
-2. Project Director / Manager
-3. Engineer / Supervisor
-4. Technician
-5. Labour / Worker
-
-## Important change
-The five items above are now the actual questionnaire categories. There is no separate Position field after selecting a role.
-
-Each questionnaire contains 16 statements mapped to the same 8 Safety Climate factors (2 statements per factor). The language support, voice-to-text comments, admin editing, Overall dashboard, role dashboards, favourable/neutral/unfavourable charts, exports and central Netlify data remain in place.
-
-The Overall dashboard includes a “Favourable responses by Role” chart using these five categories.
-
-## Question-set approach
-- Executive Leader / Director: strategic leadership and organisational commitment focus.
-- Project Director / Manager: project delivery, controls, resources and HSE implementation focus.
-- Engineer / Supervisor: planning, procedures, frontline supervision and engagement focus.
-- Technician: a balanced mix of technical execution and frontline safety experience.
-- Labour / Worker: simple frontline safety climate statements.
-
-V6 migration preserves project branding, languages, divisions, logos and other settings while replacing the old four questionnaire categories with the five requested categories.
+## Updating the existing GitHub/Netlify site
+Replace the repository contents with this package, commit, and let Netlify redeploy. Keep the existing `ADMIN_KEY` environment variable. No new Netlify site is required.
