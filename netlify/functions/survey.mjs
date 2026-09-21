@@ -53,10 +53,17 @@ export default async (req, context) => {
     }
 
     if(action==="save-config"&&req.method==="POST"){
-      const config=await req.json();if(!config||typeof config!=="object")return json({error:"Invalid config"},400);
-      config.version=9;config.schema="hajr-safety-climate-v9";config.updatedAt=new Date().toISOString();
-      await configStore().setJSON("main",config);
-      return json({ok:true,savedAt:config.updatedAt});
+      const incoming=await req.json();
+      if(!incoming||typeof incoming!=="object"||Array.isArray(incoming))return json({error:"Invalid config"},400);
+      // Store a clean copy and then read the exact object back with strong
+      // consistency. Returning that raw stored object lets the admin verify the
+      // save without comparing against a migrated/default-normalized config.
+      const stored={...incoming,version:10,schema:"hajr-safety-climate-v10",updatedAt:new Date().toISOString()};
+      const store=configStore();
+      await store.setJSON("main",stored);
+      const verified=await store.get("main",{type:"json",consistency:"strong"});
+      if(!verified)return json({error:"Save verification failed",message:"Configuration was written but could not be read back from central storage."},500);
+      return json({ok:true,savedAt:stored.updatedAt,config:verified});
     }
 
     if(action==="reset-responses"&&req.method==="POST"){

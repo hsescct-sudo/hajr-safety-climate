@@ -12,8 +12,18 @@ window.Admin = (() => {
   const download=(name,content,type='application/json')=>{const b=new Blob([content],{type}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);};
 
 
+  function stableStringify(value){
+    if(value===null || typeof value!=="object") return JSON.stringify(value);
+    if(Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`;
+    return `{${Object.keys(value).sort().map(k=>`${JSON.stringify(k)}:${stableStringify(value[k])}`).join(',')}}`;
+  }
   function persistSignature(c){
-    return JSON.stringify({project:c?.project,theme:c?.theme,logos:c?.logos,languages:c?.languages,roles:c?.roles,divisions:c?.divisions,questions:c?.questions,openQuestions:c?.openQuestions});
+    const copy=Core.clone(c||{});
+    // Server-managed metadata must not make a successful save look like a failure.
+    delete copy.updatedAt;
+    delete copy.serverSavedAt;
+    delete copy.lastSavedAt;
+    return stableStringify(copy);
   }
 
   function setSaveState(kind,text){const el=$('saveState');if(!el)return;el.className=`save-state ${kind||''}`.trim();$('saveStateText').textContent=text;}
@@ -28,8 +38,16 @@ window.Admin = (() => {
       const snapshot=Core.clone(config);
       const expected=persistSignature(snapshot);
       const out=await Cloud.saveConfig(snapshot);
-      const verified=await Cloud.getConfig(window.DEFAULT_CONFIG);
-      if(persistSignature(verified)!==expected) throw new Error('Server verification failed: the saved configuration did not round-trip correctly.');
+      // The save endpoint now writes, reads back with strong consistency, and returns
+      // the exact stored object. Verify that raw stored object before applying any
+      // migration/default normalization in the browser.
+      if(!out?.ok || !out?.config) throw new Error('The server did not return the stored configuration for verification.');
+      const stored=out.config;
+      if(persistSignature(stored)!==expected){
+        console.error('Save verification mismatch',{expectedConfig:snapshot,storedConfig:stored});
+        throw new Error('The server stored a different configuration than the one sent. Please retry once, then run the central storage test.');
+      }
+      const verified=Core.migrateConfig(window.DEFAULT_CONFIG,stored);
       savedSerial=Math.max(savedSerial,startSerial);
       if(changeSerial===startSerial){
         config=verified;applyTheme();renderAll();
