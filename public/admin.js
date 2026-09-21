@@ -11,6 +11,11 @@ window.Admin = (() => {
   const projectLine=()=>`${config.project.code} – ${T(config.project.name)}`;
   const download=(name,content,type='application/json')=>{const b=new Blob([content],{type}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);};
 
+
+  function persistSignature(c){
+    return JSON.stringify({project:c?.project,theme:c?.theme,logos:c?.logos,languages:c?.languages,roles:c?.roles,divisions:c?.divisions,questions:c?.questions,openQuestions:c?.openQuestions});
+  }
+
   function setSaveState(kind,text){const el=$('saveState');if(!el)return;el.className=`save-state ${kind||''}`.trim();$('saveStateText').textContent=text;}
   function markDirty(){changeSerial++;setSaveState('saving','Unsaved changes');clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveNow(false),900);}
   async function saveNow(manual=true){
@@ -19,12 +24,18 @@ window.Admin = (() => {
     if(changeSerial===savedSerial && !manual){setSaveState('','Saved');return;}
     saving=true;const startSerial=changeSerial;setSaveState('saving','Saving…');
     try{
-      config.version=8;config.schema='hajr-safety-climate-v8';
-      const out=await Cloud.saveConfig(Core.clone(config));
+      config.version=9;config.schema='hajr-safety-climate-v9';
+      const snapshot=Core.clone(config);
+      const expected=persistSignature(snapshot);
+      const out=await Cloud.saveConfig(snapshot);
+      const verified=await Cloud.getConfig(window.DEFAULT_CONFIG);
+      if(persistSignature(verified)!==expected) throw new Error('Server verification failed: the saved configuration did not round-trip correctly.');
       savedSerial=Math.max(savedSerial,startSerial);
-      if(changeSerial===startSerial)setSaveState('',`Saved ${out?.savedAt?new Date(out.savedAt).toLocaleTimeString():''}`.trim());
-      else{setSaveState('saving','New changes pending');saveAgain=true;}
-      if(manual) alert('Changes saved successfully.');
+      if(changeSerial===startSerial){
+        config=verified;applyTheme();renderAll();
+        setSaveState('',`Saved & verified ${out?.savedAt?new Date(out.savedAt).toLocaleTimeString():''}`.trim());
+      }else{setSaveState('saving','New changes pending');saveAgain=true;}
+      if(manual) alert('Changes saved and verified on central storage.');
     }catch(e){setSaveState('error','Save failed');if(manual)alert('Could not save configuration: '+e.message);}
     finally{saving=false;if(saveAgain){saveAgain=false;if(changeSerial!==savedSerial)setTimeout(()=>saveNow(false),100);}}
   }
@@ -55,6 +66,32 @@ window.Admin = (() => {
   function answerValues(rs,factor=dashFactor){return (rs||[]).flatMap(r=>(r.answers||[]).filter(a=>factor==='All'||a.factor===factor).map(value).filter(Number.isFinite));}
   function percentParts(vals){const n=vals.length;if(!n)return{bad:0,neutral:0,good:0};const bad=vals.filter(x=>x<=2).length/n*100,neutral=vals.filter(x=>x===3).length/n*100,good=100-bad-neutral;return{bad:+bad.toFixed(1),neutral:+neutral.toFixed(1),good:+good.toFixed(1)};}
   function stackHtml(vals){if(!vals.length)return '<div class="stack"><div class="seg" style="width:100%;background:#edf2f4;color:#73818b">No data</div></div>';const p=percentParts(vals),lab=x=>x>=7?`${x.toFixed(1)}%`:'';return `<div class="stack"><div class="seg bad" style="width:${p.bad}%">${lab(p.bad)}</div><div class="seg neutral" style="width:${p.neutral}%">${lab(p.neutral)}</div><div class="seg good" style="width:${p.good}%">${lab(p.good)}</div></div>`;}
+  function renderDistribution(vals){
+    const host=$('distributionDonut'),legend=$('distributionLegend');if(!host||!legend)return;
+    const p=percentParts(vals),total=vals.length;
+    host.innerHTML=`<div class="donut-ring" style="--mix-bad-angle:${(p.bad*3.6).toFixed(2)}deg;--mix-neutral-angle:${((p.bad+p.neutral)*3.6).toFixed(2)}deg"><div class="donut-center"><b>${total?`${p.good.toFixed(1)}%`:'—'}</b><span>Favourable</span><small>${total} answers</small></div></div>`;
+    legend.innerHTML=[['Unfavourable',p.bad,'var(--bad)'],['Neutral',p.neutral,'var(--neutral)'],['Favourable',p.good,'var(--good)']].map(x=>`<div class="donut-legend-row"><i style="background:${x[2]}"></i><span>${x[0]}</span><b>${total?x[1].toFixed(1)+'%':'—'}</b></div>`).join('');
+  }
+  function heatColor(p){
+    if(p==null)return '#f1f4f6';
+    if(p<40)return `hsl(4 55% ${84-Math.min(22,p/2)}%)`;
+    if(p<65)return `hsl(42 72% ${88-Math.min(18,(p-40)/2)}%)`;
+    return `hsl(110 38% ${88-Math.min(24,(p-65)/1.6)}%)`;
+  }
+  function renderHeatmap(){
+    const host=$('heatmapDashboard');if(!host)return;
+    const roles=enabledRoles(),factors=Object.keys(config.factors||{});
+    const base=responses.filter(r=>dashDivision==='All'||(r.division||'Not specified')===dashDivision);
+    const header=`<div class="heatmap-row heatmap-head"><div class="heatmap-role">Role</div>${factors.map(f=>`<div title="${E(T(config.factors[f]))}">${E(T(config.factors[f]).split(' ').slice(0,2).join(' '))}</div>`).join('')}</div>`;
+    const rows=roles.map(r=>{
+      const rr=base.filter(x=>responseRole(x)===r.id);
+      const cells=factors.map(f=>{const vals=answerValues(rr,f),p=vals.length?pct(vals,x=>x>=4,0):null;return `<button type="button" class="heatmap-cell" data-heat-role="${E(r.id)}" data-heat-factor="${E(f)}" style="background:${heatColor(p)}" title="${E(roleLabel(r.id))} • ${E(T(config.factors[f]))}">${p==null?'—':p+'%'}</button>`;}).join('');
+      return `<div class="heatmap-row"><button type="button" class="heatmap-role heatmap-role-btn" data-heat-role-only="${E(r.id)}">${E(roleLabel(r.id))}</button>${cells}</div>`;
+    }).join('');
+    host.innerHTML=`<div class="heatmap-table">${header}${rows}</div>`;
+    host.querySelectorAll('[data-heat-role][data-heat-factor]').forEach(btn=>btn.addEventListener('click',()=>{dashRole=btn.dataset.heatRole;dashFactor=btn.dataset.heatFactor;renderDashboardTabs();renderDashboard();$('questionDashboard').scrollIntoView({behavior:'smooth',block:'start'});}));
+    host.querySelectorAll('[data-heat-role-only]').forEach(btn=>btn.addEventListener('click',()=>{dashRole=btn.dataset.heatRoleOnly;dashFactor='All';renderDashboardTabs();renderDashboard();}));
+  }
   function renderDashboardFilterOptions(){
     const base=roleScopedResponses();const divs=[...new Set(base.map(r=>r.division||'Not specified'))].sort();
     const divEl=$('dashDivision');divEl.innerHTML='<option value="All">All divisions</option>'+divs.map(d=>`<option value="${E(d)}">${E(d)}</option>`).join('');if(divs.includes(dashDivision))divEl.value=dashDivision;else{dashDivision='All';divEl.value='All';}
@@ -72,7 +109,7 @@ window.Admin = (() => {
     const commentAnswers=rs.flatMap(r=>(r.answers||[]).filter(a=>(dashFactor==='All'||a.factor===dashFactor)&&(a.comment||'').trim()));
     const openCount=dashFactor==='All'?rs.flatMap(r=>r.openAnswers||[]).filter(x=>(x.text||'').trim()).length:0;
     $('dResponses').textContent=rs.length;$('dFav').textContent=vals.length?`${pct(vals,x=>x>=4,1)}%`:'—';$('dNeutral').textContent=vals.length?`${pct(vals,x=>x===3,1)}%`:'—';$('dUnfav').textContent=vals.length?`${pct(vals,x=>x<=2,1)}%`:'—';$('dComments').textContent=commentAnswers.length+openCount;
-    renderFactors(rs);renderRoleBreakdown();renderDivisions();renderQuestions(rs);renderComments(rs);renderRecent(rs);
+    renderDistribution(vals);renderHeatmap();renderFactors(rs);renderRoleBreakdown();renderDivisions();renderQuestions(rs);renderComments(rs);renderRecent(rs);
   }
   function renderFactors(rs){
     const groups={};Object.keys(config.factors||{}).forEach(f=>groups[f]=[]);rs.forEach(r=>(r.answers||[]).forEach(a=>{const v=value(a);if(Number.isFinite(v)&&a.factor)(groups[a.factor]??=[]).push(v);}));
@@ -82,11 +119,13 @@ window.Admin = (() => {
   function renderRoleBreakdown(){
     const groups={};enabledRoles().forEach(r=>groups[r.id]={values:[],responses:0});
     responses.filter(r=>dashDivision==='All'||(r.division||'Not specified')===dashDivision).forEach(r=>{const id=responseRole(r);if(!groups[id])return;groups[id].responses++;groups[id].values.push(...(r.answers||[]).filter(a=>dashFactor==='All'||a.factor===dashFactor).map(value).filter(Number.isFinite));});
-    $('roleDashboard').innerHTML=enabledRoles().map(r=>{const g=groups[r.id],p=g.values.length?pct(g.values,x=>x>=4,1):0;return `<div class="role-row"><div><b>${E(roleLabel(r.id))}</b></div><div class="bar"><i style="width:${p||0}%"></i></div><div class="bar-pct"><b>${g.values.length?p+'%':'—'}</b><span>${g.responses} resp.</span></div></div>`;}).join('');
+    const host=$('roleDashboard');host.innerHTML=enabledRoles().map(r=>{const g=groups[r.id],p=g.values.length?pct(g.values,x=>x>=4,1):0;return `<button type="button" class="role-row interactive-row ${dashRole===r.id?'active':''}" data-role-drill="${E(r.id)}"><div><b>${E(roleLabel(r.id))}</b></div><div class="bar"><i style="width:${p||0}%"></i></div><div class="bar-pct"><b>${g.values.length?p+'%':'—'}</b><span>${g.responses} resp.</span></div></button>`;}).join('');
+    host.querySelectorAll('[data-role-drill]').forEach(btn=>btn.addEventListener('click',()=>{dashRole=btn.dataset.roleDrill;renderDashboardTabs();renderDashboard();}));
   }
   function renderDivisions(){
     const rs=roleScopedResponses(),groups={};rs.forEach(r=>{const k=r.division||'Not specified';groups[k]??={values:[],responses:0};groups[k].responses++;groups[k].values.push(...(r.answers||[]).filter(a=>dashFactor==='All'||a.factor===dashFactor).map(value).filter(Number.isFinite));});
-    const entries=Object.entries(groups).sort((a,b)=>b[1].responses-a[1].responses);$('divisionDashboard').innerHTML=entries.length?entries.map(([k,g])=>{const p=g.values.length?pct(g.values,x=>x>=4,1):0;return `<div class="division-row"><div>${E(k)}</div><div class="bar good"><i style="width:${p||0}%"></i></div><div class="bar-pct"><b>${g.values.length?p+'%':'—'}</b><span>${g.responses} resp.</span></div></div>`;}).join(''):'<div class="no-data">No responses.</div>';
+    const entries=Object.entries(groups).sort((a,b)=>b[1].responses-a[1].responses),host=$('divisionDashboard');host.innerHTML=entries.length?entries.map(([k,g])=>{const p=g.values.length?pct(g.values,x=>x>=4,1):0;return `<button type="button" class="division-row interactive-row ${dashDivision===k?'active':''}" data-division-drill="${E(k)}"><div>${E(k)}</div><div class="bar good"><i style="width:${p||0}%"></i></div><div class="bar-pct"><b>${g.values.length?p+'%':'—'}</b><span>${g.responses} resp.</span></div></button>`;}).join(''):'<div class="no-data">No responses.</div>';
+    host.querySelectorAll('[data-division-drill]').forEach(btn=>btn.addEventListener('click',()=>{dashDivision=btn.dataset.divisionDrill;renderDashboard();}));
   }
   function currentQuestionMap(){const map=new Map();enabledRoles().forEach(r=>(config.questions?.[r.id]||[]).forEach((q,i)=>map.set(`${r.id}::${q.id}`,{role:r.id,q,index:i})));return map;}
   function buildQuestionGroups(rs){
@@ -162,9 +201,9 @@ window.Admin = (() => {
 
   async function testStorage(){const box=$('storageStatus');box.className='storage-card warn';box.querySelector('.small').textContent='Testing central read/write/delete access…';try{const out=await Cloud.storageCheck();box.className='storage-card good';box.querySelector('.small').textContent=out.message||'Central storage is working.';}catch(e){box.className='storage-card bad';box.querySelector('.small').textContent='Storage test failed: '+e.message;}}
   async function resetResponses(){if(!confirm('Delete ALL submitted responses and reset the dashboard to zero?'))return;if(!confirm('Final confirmation: this cannot be undone unless you exported a backup.'))return;try{const check=await Cloud.storageCheck();if(!check?.ok)throw new Error(check?.message||'Storage test failed.');const out=await Cloud.resetResponses();responses=[];renderDashboard();alert(`Dashboard reset completed. ${out?.deleted??0} stored responses deleted.`);}catch(e){alert('Reset failed: '+e.message);}}
-  function exportConfig(){download('HAJR_Safety_Climate_V8_Config.json',JSON.stringify(config,null,2));}
-  function exportJSON(){download('HAJR_Safety_Climate_V8_Results.json',JSON.stringify(responses,null,2));}
-  function exportCSV(){const rows=[['Timestamp','Role','Division','Company','Area','Language','Question ID','Factor','Rating','Normalised rating','Comment']];responses.forEach(r=>(r.answers||[]).forEach(a=>rows.push([r.timestamp,responseRole(r),r.division,r.company,r.area,r.language,a.qid,a.factor,a.value,value(a),a.comment||''])));download('HAJR_Safety_Climate_V8_Results.csv',rows.map(row=>row.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(',')).join('\n'),'text/csv');}
+  function exportConfig(){download('HAJR_Safety_Climate_V9_Config.json',JSON.stringify(config,null,2));}
+  function exportJSON(){download('HAJR_Safety_Climate_V9_Results.json',JSON.stringify(responses,null,2));}
+  function exportCSV(){const rows=[['Timestamp','Role','Division','Company','Area','Language','Question ID','Factor','Rating','Normalised rating','Comment']];responses.forEach(r=>(r.answers||[]).forEach(a=>rows.push([r.timestamp,responseRole(r),r.division,r.company,r.area,r.language,a.qid,a.factor,a.value,value(a),a.comment||''])));download('HAJR_Safety_Climate_V9_Results.csv',rows.map(row=>row.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(',')).join('\n'),'text/csv');}
   async function changePin(){const p=$('newLocalPin').value.trim();if(p.length<4){alert('Use at least 4 characters.');return;}await Cloud.changeLocalPin(p);$('newLocalPin').value='';alert('Local preview PIN changed.');}
 
   window.addEventListener('beforeunload',e=>{if(changeSerial!==savedSerial){e.preventDefault();e.returnValue='';}});

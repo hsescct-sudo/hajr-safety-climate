@@ -1,83 +1,35 @@
-# HAJR Safety Climate Survey — V9 FINAL / Today Build
+# HAJR Safety Climate Survey — V10 EMERGENCY / Deploy-Proof Build
 
-This is the consolidated rebuild for the current client comments. It keeps the existing Netlify Blob store names so existing responses/configuration can be migrated instead of discarded.
+Build marker: **V10 LIVE** (10.0.0-20260921)
 
-## Final questionnaire structure — 4 roles
-1. Executive Leader / Director
-2. Project Director / Manager
-3. Engineer / Supervisor / Technician
-4. Labour / Worker
+This release is intentionally deploy-proof for the current Netlify/GitHub setup. The same current front-end exists both in `/public` and at repository root, while `netlify.toml` continues to publish `/public`. This removes ambiguity from the older duplicate root files that were still present in the repository.
 
-Historical responses from the old `Engineer / Supervisor` and `Technician` roles are grouped automatically under `Engineer / Supervisor / Technician` in analytics.
+## Critical fixes
+- 4 roles only: Executive Leader / Director; Project Director / Manager; Engineer / Supervisor / Technician; Labour / Worker.
+- Project name on the language-selection page is read from saved central configuration.
+- Role labels/descriptions, divisions, questions, translations, logos and theme use the same central configuration.
+- Manual/auto save now performs a server round-trip verification. The admin status says **Saved & verified** only after reading the saved data back from Netlify.
+- Netlify Blob writes use `getStore()` directly in Function runtime. Production-context write gates were removed to avoid false 403s; admin config/reset remain protected by `ADMIN_KEY`.
+- Interactive dashboard from V9 retained: Overall + questionnaire tabs, donut, role-factor heatmap, factor/role/division drill-downs, clickable question modal and comments.
+- Cache-busting query strings and Netlify `_headers` disable stale HTML/JS/CSS caching for today's presentation.
+- Admin header visibly shows **V10 LIVE** so you can confirm the new deploy is actually being served.
 
-## Public survey fixes
-- Language-selection screen reads the live saved project configuration (no hard-coded project name).
-- Project name, survey name, description, logos, colours, languages, roles and divisions are loaded from central configuration.
-- 10 languages remain available.
-- Voice-to-text remains available for question comments and open questions.
-- Strongly Disagree opens the justification box automatically.
-- Every question supports an optional comment / justification.
+## Upload
+Upload/replace **all files and folders** from this ZIP to GitHub. Do not upload the ZIP itself.
 
-## Admin saving fixes
-- Central configuration save uses site-wide Netlify Blobs from the Function runtime.
-- Removed manual site-ID binding that can cause a 403 write error without the correct runtime token.
-- Auto-save status is shown in the header: Unsaved / Saving / Saved / Save failed.
-- Manual `Save now` remains available.
-- Project name, role labels, role descriptions, divisions, questions, translations, factors, logos and theme all use the same central save path.
-- Data & Reset includes a central read/write/delete test.
+Expected repository items include both:
+- `public/index.html`, `public/admin.html`, etc.
+- root `index.html`, `admin.html`, etc.
+- `netlify/functions/survey.mjs`
+- `netlify.toml`
+- `package.json`
 
-## Interactive dashboard V9
-- Overall + one dashboard per questionnaire.
-- Favourable / Neutral / Unfavourable KPIs.
-- Interactive response-mix donut.
-- Interactive Role × Safety Climate Factor heatmap.
-- Clickable Safety Climate Factor cards.
-- Clickable Role bars to drill into that questionnaire.
-- Clickable Division bars to filter by division.
-- Question-by-question stacked results.
-- Click any question to open:
-  - detailed distribution
-  - average normalized score
-  - role breakdown
-  - division breakdown
-  - comments / justifications for that exact question
-- Clickable most favourable / most unfavourable findings.
-- Recent responses and CSV/JSON export.
+Suggested commit: `V10 emergency - deploy proof, verified saving, final dashboard`
 
-## Files to upload to GitHub
-Upload/replace all items from the V9 update ZIP while preserving folders:
-
-```
-public/
-netlify/
-netlify.toml
-package.json
-README.md
-```
-
-Netlify should continue to use:
-- Publish directory: `public`
-- Functions directory: `netlify/functions`
-
-The existing `ADMIN_KEY` environment variable does not need to change.
-
-Suggested commit message:
-
-`V9 final - 4 roles, interactive dashboard and reliable central saving`
-
-## After Netlify says Published
-1. Open `/admin.html` and sign in.
-2. Go to **Data & Reset** → **Test central storage**.
-3. Confirm the result says the central read/write/delete test passed.
-4. Go to **Project & Branding**, change the English project name, click **Save now**, then open the public root URL in a fresh/private tab and confirm the language-selection page shows the new name.
-5. Go to **Languages, Roles & Divisions**, change one role label or division, save, refresh the public survey and confirm the change appears.
-6. Submit one test response with a comment.
-7. In Dashboard, click the role, a factor, a division, a heatmap cell and the question. Confirm the question modal shows the comment.
-
-## QA completed before packaging
-- JavaScript syntax check passed for all public/admin/function JS files.
-- DOM-ID reference audit passed: all static IDs referenced by public/admin JavaScript exist in their HTML.
-- Public local-state save/reload test passed for project name, divisions and role labels.
-- V8 → V9 migration test passed, including the old Technician role mapping into the merged role.
-- Public language rendering test passed for English and Arabic.
-- Dashboard smoke test passed with sample response data, including KPI, donut and heatmap generation.
+## Verify in 3 minutes
+1. Netlify Deploys: latest deploy must point to the new V10 commit and show Published.
+2. Open `/admin.html` in an Incognito window. Header must say **V10 LIVE**. If it does not, the new deploy is not live.
+3. Data & Reset -> Test central storage.
+4. Project & Branding -> change English project name -> Save now. You must get **Changes saved and verified on central storage.**
+5. Open the public root URL in a new Incognito window. The language-selection page must show the new project name.
+6. Change one role label and one division, Save now, reopen public survey and confirm both changes.

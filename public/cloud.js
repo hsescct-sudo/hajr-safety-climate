@@ -1,7 +1,7 @@
 window.Cloud = (() => {
   const API="/api/survey";
   let mode="unknown", lastError="";
-  const LOCAL_CONFIG="hajr_v8_config", LOCAL_RESP="hajr_v8_responses", LOCAL_PIN="hajr_v8_admin_pin";
+  const LOCAL_CONFIG="hajr_v9_config", LOCAL_RESP="hajr_v9_responses", LOCAL_PIN="hajr_v9_admin_pin";
   function apiError(status, body){
     let message=body||`HTTP ${status}`;
     try{const j=JSON.parse(body);message=j.message||j.error||message;}catch(_){}
@@ -16,13 +16,13 @@ window.Cloud = (() => {
   }
   function localConfig(defaults){
     try{
-      const old=localStorage.getItem(LOCAL_CONFIG) || localStorage.getItem("hajr_v7_config");
+      const old=localStorage.getItem(LOCAL_CONFIG) || localStorage.getItem("hajr_v8_config") || localStorage.getItem("hajr_v7_config");
       const x=JSON.parse(old||"null"),m=Core.migrateConfig(defaults,x);
       localStorage.setItem(LOCAL_CONFIG,JSON.stringify(m));return m;
     }catch(e){const d=Core.migrateConfig(defaults,null);localStorage.setItem(LOCAL_CONFIG,JSON.stringify(d));return d;}
   }
   function localResponses(){
-    try{return JSON.parse(localStorage.getItem(LOCAL_RESP)||localStorage.getItem("hajr_v7_responses")||"[]")}catch(e){return[]}
+    try{return JSON.parse(localStorage.getItem(LOCAL_RESP)||localStorage.getItem("hajr_v8_responses")||localStorage.getItem("hajr_v7_responses")||"[]")}catch(e){return[]}
   }
   const localAllowed=()=>location.protocol==='file:' || ['localhost','127.0.0.1'].includes(location.hostname);
   async function getConfig(defaults){
