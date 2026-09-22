@@ -1,17 +1,15 @@
-HAJR SAFETY CLIMATE V10.4 FINAL CLEAN — DEPLOY CHECKLIST
+HAJR SAFETY CLIMATE V10.5 FINAL CLEAN — DEPLOY CHECKLIST
 
-[ ] Upload all V10.4 files to GitHub root
-[ ] Commit: V10.4 final - campaign management, comparison dashboard and HSE thresholds
+[ ] Upload all V10.5 files to GitHub root
+[ ] Commit: V10.5 final - clean threshold bars and interactive campaign comparison
 [ ] Wait for Netlify Published
-[ ] Open /admin.html and confirm V10.4 FINAL CLEAN
-[ ] Test central storage
-[ ] Campaigns: baseline shown Active/Open
-[ ] Create Draft campaign
-[ ] Activate new campaign; previous campaign becomes Closed
-[ ] Public survey accepts responses only when active campaign is Open
-[ ] Submit test response and refresh dashboard
-[ ] Performance bars: Green >=75 / Amber 60-74.9 / Red <60
-[ ] Campaign Comparison: select A and B and verify factor / role / division / question deltas
-[ ] Action Plan: response + evidence + close-out still works
-[ ] Word report generates
-[ ] Excel report generates
+[ ] Open /admin.html and confirm V10.5 FINAL CLEAN
+[ ] Confirm performance rows remain white and ONLY the bar fill is Green / Amber / Red
+[ ] Open Campaign Comparison
+[ ] Select Campaign A and Campaign B
+[ ] Test All / Improved / Declined / Major changes views
+[ ] Click Factor, Role and Division and confirm the comparison cross-filters
+[ ] Click a Question and confirm drill-through comments / evidence
+[ ] Confirm low sample-size warning appears when a campaign has fewer than 10 responses
+[ ] Test Word and Excel reports
+[ ] Test Action Plan close-out and evidence upload

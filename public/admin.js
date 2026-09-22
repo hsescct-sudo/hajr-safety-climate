@@ -35,7 +35,7 @@ window.Admin = (() => {
     if(changeSerial===savedSerial && !manual){setSaveState('','Saved');return;}
     saving=true;const startSerial=changeSerial;setSaveState('saving','Saving…');
     try{
-      config.version='10.4-final';config.release='10.4-final';config.schema='hajr-safety-climate-v10';
+      config.version='10.5-final';config.release='10.5-final';config.schema='hajr-safety-climate-v10';
       const snapshot=Core.clone(config);
       const expected=persistSignature(snapshot);
       const out=await Cloud.saveConfig(snapshot);

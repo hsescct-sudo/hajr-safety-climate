@@ -1,6 +1,6 @@
 {
-  "build": "V10.4 FINAL CLEAN",
-  "version": "10.4.0-final",
+  "build": "V10.5 FINAL CLEAN",
+  "version": "10.5.0-final",
   "date": "2026-09-22",
   "architecture": "single public publish directory + Netlify function",
   "roles": [
@@ -27,6 +27,6 @@
     "Performance thresholds: Green \u226575%, Amber 60\u201374.9%, Red <60%"
   ],
   "note": "No contractor/company field or contractor analytics. Compatible with existing HAJR config/response stores; adds central action/evidence stores.",
-  "label": "V10.4 FINAL CLEAN",
-  "release": "10.4-final"
+  "label": "V10.5 FINAL CLEAN",
+  "release": "10.5-final"
 }
