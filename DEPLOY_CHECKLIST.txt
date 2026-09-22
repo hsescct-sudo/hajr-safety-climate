@@ -1,0 +1,19 @@
+HAJR V10.2 FINAL CLEAN — 10 MINUTE GO-LIVE CHECK
+
+[ ] Upload only this clean package to GitHub
+[ ] Confirm folders at repo root: public / netlify
+[ ] Confirm files at repo root: netlify.toml / package.json
+[ ] Netlify deploy = Published
+[ ] /admin.html header = V10.2 FINAL CLEAN
+[ ] Data & Reset > Test central storage = passed
+[ ] Project name change > Save now = Saved & verified
+[ ] Public language page shows new project name
+[ ] Public survey shows 4 roles only
+[ ] No contractor/company field appears
+[ ] Submit one test response + comment
+[ ] Dashboard Refresh Data shows response
+[ ] Role/Division/Factor filters work
+[ ] Heatmap cell drills into analysis
+[ ] Question click shows comments
+[ ] Word Report downloads
+[ ] Excel Workbook downloads

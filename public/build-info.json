@@ -1,11 +1,26 @@
 {
-  "build": "V10 LIVE",
-  "version": "10.0.0-20260921",
-  "date": "2026-09-21",
+  "build": "V10.2 FINAL CLEAN",
+  "version": "10.2.0",
+  "date": "2026-09-22",
+  "architecture": "single public publish directory + Netlify function",
   "roles": [
     "Executive Leader / Director",
     "Project Director / Manager",
     "Engineer / Supervisor / Technician",
     "Labour / Worker"
-  ]
+  ],
+  "features": [
+    "Power BI-style interactive dashboard",
+    "Role/division/factor/language/campaign/period cross-filtering",
+    "Radar, heatmap, trend, bubble, stacked sentiment and drill-through charts",
+    "Question comments and justifications drill-through",
+    "Evidence-based management action plan",
+    "One-click Word management report",
+    "One-click multi-sheet Excel workbook",
+    "10-language public survey with RTL support",
+    "Voice-to-text comments",
+    "Central Netlify Blobs storage",
+    "Verified configuration saving"
+  ],
+  "note": "No contractor/company field or contractor analytics. Compatible with existing HAJR Netlify Blob stores."
 }

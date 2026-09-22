@@ -1,26 +1,105 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HAJR Safety Climate | Admin V9</title><link rel="stylesheet" href="styles.css"></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HAJR Safety Climate | Admin V10.2 Final</title><link rel="stylesheet" href="styles.css"></head>
 <body class="admin-body">
 <section id="loginView" class="login-screen"><div class="card login-card"><div class="eyebrow">HAJR Safety Climate</div><h1 style="font-size:34px">Admin access</h1><p class="lead" style="font-size:14px">Dashboard and configuration are private.</p><div class="field"><label>Admin key</label><input id="adminKey" type="password" placeholder="Enter admin key"></div><button class="btn btn-primary" style="width:100%;margin-top:11px" onclick="Admin.login()">Sign in</button><p class="small">Local preview PIN only: 70330. Production uses Netlify ADMIN_KEY.</p></div></section>
 <div id="adminApp" class="hidden">
-<header class="admin-top"><div class="admin-top-inner"><div class="admin-brand"><span id="adminProject">70330 – HAJR Expansion Project</span><small>Safety Climate Survey • Admin Studio <b style="color:#8fe3b1">V10 LIVE</b></small></div><div class="admin-head-actions"><span id="saveState" class="save-state"><span class="save-dot"></span><span id="saveStateText">Saved</span></span><span id="modeBadge" class="status-badge"></span><a href="index.html" class="btn btn-secondary" style="text-decoration:none">Open Public Survey</a></div></div></header>
+<header class="admin-top"><div class="admin-top-inner"><div class="admin-brand"><span id="adminProject">70330 – HAJR Expansion Project</span><small>Safety Climate Survey • Admin Studio <b style="color:#8fe3b1">V10.2 FINAL CLEAN</b></small></div><div class="admin-head-actions"><span id="saveState" class="save-state"><span class="save-dot"></span><span id="saveStateText">Saved</span></span><span id="modeBadge" class="status-badge"></span><a href="index.html" class="btn btn-secondary" style="text-decoration:none">Open Public Survey</a></div></div></header>
 <main class="admin-shell">
 <nav class="admin-nav"><button class="tab active" data-tab="dashboard" onclick="Admin.tab('dashboard')">Dashboard</button><button class="tab" data-tab="settings" onclick="Admin.tab('settings')">Project & Branding</button><button class="tab" data-tab="questions" onclick="Admin.tab('questions')">Questionnaire Builder</button><button class="tab" data-tab="audience" onclick="Admin.tab('audience')">Languages, Roles & Divisions</button><button class="tab" data-tab="data" onclick="Admin.tab('data')">Data & Reset</button></nav>
 
 <section id="panel_dashboard">
-  <div class="section-head"><div><div class="eyebrow">Analytics</div><h1 style="font-size:38px;margin:5px 0 0">Safety Climate Intelligence Dashboard</h1><p class="lead" style="font-size:14px;margin:5px 0">Live, interactive project view with role, division and factor drill-down. Click bars, heatmap cells or any question to explore the underlying responses and comments.</p></div><div class="inline-actions"><button class="btn btn-secondary" onclick="Admin.refreshResponses()">Refresh</button><button class="btn btn-secondary" onclick="Admin.exportCSV()">Export CSV</button></div></div>
-  <div id="dashboardTabs" class="dashboard-tabs"></div>
-  <div class="filter-bar"><div class="field"><label>Division filter</label><select id="dashDivision" onchange="Admin.setDashboardDivision(this.value)"></select></div><div class="field"><label>Factor filter</label><select id="dashFactor" onchange="Admin.setDashboardFactor(this.value)"></select></div><div class="field" style="flex:1"><label>Search questions</label><input id="dashSearch" placeholder="Search question wording…" oninput="Admin.setDashboardSearch(this.value)"></div><button class="btn btn-secondary" onclick="Admin.clearDashboardFilters()">Clear filters</button></div>
-  <div class="stats"><div class="card stat"><b id="dResponses">0</b><span>Responses</span></div><div class="card stat"><b id="dFav">—</b><span>Favourable</span></div><div class="card stat"><b id="dNeutral">—</b><span>Neutral</span></div><div class="card stat"><b id="dUnfav">—</b><span>Unfavourable</span></div><div class="card stat"><b id="dComments">0</b><span>Comments / Justifications</span></div></div>
-  <div class="admin-grid insight-grid" style="margin-top:15px"><div class="card"><div class="section-head"><div><h2 style="margin:0">Response mix</h2><p class="small">Live favourable / neutral / unfavourable distribution for the current filters.</p></div></div><div class="donut-layout"><div id="distributionDonut" class="donut-chart" aria-label="Response distribution"></div><div id="distributionLegend" class="donut-legend"></div></div></div><div class="card"><div class="section-head"><div><h2 style="margin:0">Role × factor heatmap</h2><p class="small">Click any cell to drill directly into that role and safety-climate factor.</p></div></div><div id="heatmapDashboard" class="heatmap-wrap"></div></div></div>
-  <div class="admin-grid dashboard-top" style="margin-top:15px"><div class="card"><div class="section-head"><div><h2 style="margin:0">Safety climate factors</h2><p class="small">Click a factor to filter the question results.</p></div><div class="legend"><span><i style="background:var(--bad)"></i>Unfavourable</span><span><i style="background:var(--neutral)"></i>Neutral</span><span><i style="background:var(--good)"></i>Favourable</span></div></div><div id="factorDashboard" class="factor-grid"></div></div><div class="card"><h2>Favourable responses by Role</h2><p class="small">Executive Leader / Director • Project Director / Manager • Engineer / Supervisor / Technician • Labour / Worker</p><div id="roleDashboard"></div></div></div>
-  <div class="card" style="margin-top:15px"><h2>Favourable responses by Division</h2><div id="divisionDashboard"></div></div>
-  <div class="card" style="margin-top:15px"><div class="section-head"><div><h2 class="interactive-title" style="margin:0">Question-by-question results</h2><p class="small">Negative statements are reverse-scored before classification.</p></div><div class="legend"><span><i style="background:var(--bad)"></i>Unfavourable</span><span><i style="background:var(--neutral)"></i>Neutral</span><span><i style="background:var(--good)"></i>Favourable</span></div></div><div id="questionFilterNote" class="question-filter-note"></div><div id="questionDashboard"></div></div>
-  <div class="split" style="margin-top:15px"><div class="card"><h2>Most favourable & unfavourable</h2><div id="highlights"></div></div><div class="card"><h2>Latest comments / justifications</h2><div id="commentsFeed"></div></div></div>
-  <div class="card" style="margin-top:15px"><h2>Recent responses</h2><div id="recentResponses"></div></div>
+  <div id="pbiDashboard" class="pbi-shell">
+    <div class="pbi-topbar">
+      <div>
+        <div class="eyebrow">HSE Analytics • Final Clean Release</div>
+        <h1>Safety Climate Intelligence Dashboard</h1>
+        <p class="pbi-status"><span class="pbi-live-dot"></span><span id="pbiCampaignStatus">Current campaign</span></p>
+      </div>
+      <div class="pbi-top-actions">
+        <button id="pbiRefresh" type="button" class="btn btn-secondary">Refresh Data</button>
+        <button id="pbiWord" type="button" class="btn btn-secondary">Word Report</button>
+        <button id="pbiExcel" type="button" class="btn btn-secondary">Excel Workbook</button>
+        <button id="pbiGenerateActions" type="button" class="btn btn-primary">Generate Actions</button>
+      </div>
+    </div>
+
+    <div class="pbi-filter-ribbon">
+      <div class="field"><label>Campaign</label><select id="pbiCampaign"></select></div>
+      <div class="field"><label>Role</label><select id="pbiRole"></select></div>
+      <div class="field"><label>Division</label><select id="pbiDivision"></select></div>
+      <div class="field"><label>Factor</label><select id="pbiFactor"></select></div>
+      <div class="field"><label>Language</label><select id="pbiLanguage"></select></div>
+      <div class="field"><label>Period</label><select id="pbiPeriod"><option value="All">All Responses</option><option value="30">Last 30 Days</option><option value="7">Last 7 Days</option></select></div>
+      <button id="pbiReset" type="button" class="btn btn-secondary pbi-reset">Reset Filters</button>
+    </div>
+
+    <div class="pbi-page-tabs">
+      <button type="button" class="active" data-pbi-page="overview">Executive Overview</button>
+      <button type="button" data-pbi-page="deep">Deep Analytics</button>
+      <button type="button" data-pbi-page="questions">Question Drill-through</button>
+      <button type="button" data-pbi-page="actions">Action Plan & Comments</button>
+    </div>
+
+    <div id="pbiPage_overview" class="pbi-subpage">
+      <div class="pbi-kpis">
+        <div class="pbi-kpi"><span>Responses</span><b id="pbiResponses">0</b><small>Total filtered submissions</small><i></i></div>
+        <div class="pbi-kpi"><span>Favourable</span><b id="pbiFav">—</b><small>Agree / Strongly Agree</small><i></i></div>
+        <div class="pbi-kpi"><span>Neutral</span><b id="pbiNeutral">—</b><small>Neutral responses</small><i></i></div>
+        <div class="pbi-kpi"><span>Unfavourable</span><b id="pbiUnfav">—</b><small>Disagree / Strongly Disagree</small><i></i></div>
+        <div class="pbi-kpi"><span>Climate Index</span><b id="pbiIndex">—</b><small>Normalised score / 5</small><i></i></div>
+        <div class="pbi-kpi"><span>Comments</span><b id="pbiComments">0</b><small>Justifications & open feedback</small><i></i></div>
+        <div class="pbi-kpi"><span>High Priority</span><b id="pbiHigh">0</b><small>Triggered findings</small><i></i></div>
+        <div class="pbi-kpi"><span>Actions</span><b id="pbiActions">0</b><small>Recommended improvements</small><i></i></div>
+      </div>
+
+      <div class="pbi-grid pbi-grid-a">
+        <div class="pbi-visual pbi-donut-card"><div><h2>Overall Safety Climate</h2><p>Live sentiment distribution</p></div><div class="pbi-donut-layout"><div id="pbiDonut"></div><div id="pbiDonutLegend" class="pbi-donut-legend"></div></div><div class="pbi-mini-metric"><span>Role perception gap</span><b id="pbiGap">—</b></div></div>
+        <div class="pbi-visual"><div class="pbi-visual-head"><div><h2>Favourable by Role</h2><p>Click a role to cross-filter the complete dashboard</p></div><span class="pbi-chip">Cross-filter</span></div><div id="pbiRoleBars"></div></div>
+      </div>
+
+      <div class="pbi-grid pbi-grid-b">
+        <div class="pbi-visual"><div class="pbi-visual-head"><div><h2>8 Safety Climate Factors</h2><p>Click any factor to focus the analysis</p></div><span class="pbi-chip">8 dimensions</span></div><div id="pbiFactorBars"></div></div>
+        <div class="pbi-visual"><div class="pbi-visual-head"><div><h2>Division Performance</h2><p>Favourable response comparison</p></div><span class="pbi-chip">Interactive</span></div><div id="pbiDivisionBars"></div></div>
+      </div>
+
+      <div class="pbi-visual"><div class="pbi-visual-head"><div><h2>Sentiment Mix by Role</h2><p>Favourable / Neutral / Unfavourable profile</p></div><div class="legend"><span><i style="background:var(--good)"></i>Favourable</span><span><i style="background:var(--neutral)"></i>Neutral</span><span><i style="background:var(--bad)"></i>Unfavourable</span></div></div><div id="pbiRoleSentiment"></div></div>
+    </div>
+
+    <div id="pbiPage_deep" class="pbi-subpage hidden">
+      <div class="pbi-grid pbi-grid-c">
+        <div class="pbi-visual"><div class="pbi-visual-head"><div><h2>Role × Factor Heatmap</h2><p>Click a cell for immediate drill-through</p></div><span class="pbi-chip">Heatmap</span></div><div id="pbiHeatmap" class="pbi-heatmap"></div></div>
+        <div class="pbi-visual"><div class="pbi-visual-head"><div><h2>Safety Climate Radar</h2><p>Balance across core dimensions</p></div><span class="pbi-chip">Profile</span></div><svg id="pbiRadar" viewBox="0 0 360 300" aria-label="Safety climate radar"></svg><div id="pbiRadarLegend" class="pbi-radar-legend"></div></div>
+      </div>
+      <div class="pbi-grid pbi-grid-c">
+        <div class="pbi-visual"><div class="pbi-visual-head"><div><h2>Factor Trend / Campaign Comparison</h2><p>Latest available campaign series</p></div><span class="pbi-chip">Trend</span></div><svg id="pbiTrend" viewBox="0 0 720 250" aria-label="Factor trend"></svg></div>
+        <div class="pbi-visual"><div class="pbi-visual-head"><div><h2>Priority Bubble Map</h2><p>Bubble size reflects unfavourable intensity</p></div><span class="pbi-chip">Risk focus</span></div><svg id="pbiBubbles" viewBox="0 0 420 250" aria-label="Priority bubble map"></svg></div>
+      </div>
+    </div>
+
+    <div id="pbiPage_questions" class="pbi-subpage hidden">
+      <div class="pbi-grid pbi-grid-q">
+        <div class="pbi-visual"><div class="pbi-visual-head"><div><h2>Question Analysis</h2><p>Click a question to open evidence and comments</p></div><span class="pbi-chip">Drill-through</span></div><div id="pbiQuestions"></div></div>
+        <div class="pbi-visual pbi-sticky-detail"><div class="pbi-visual-head"><div><h2>Selected Question</h2><p>Distribution, comments and detailed evidence</p></div></div><div id="pbiQuestionDetail"></div></div>
+      </div>
+    </div>
+
+    <div id="pbiPage_actions" class="pbi-subpage hidden">
+      <div class="pbi-action-kpis"><div><span>Generated Actions</span><b id="pbiActionTotal">0</b></div><div><span>High Priority</span><b id="pbiActionHigh">0</b></div><div><span>Threshold Logic</span><b>Evidence Based</b></div></div>
+      <div class="pbi-visual pbi-action-table-wrap"><div class="pbi-visual-head"><div><h2>Survey Improvement Action Plan</h2><p>Generated from low scores, high unfavourable results and repeated feedback</p></div><span class="pbi-chip">Editable after export</span></div><div class="pbi-action-head"><span>Finding / Evidence</span><span>Priority</span><span>Owner</span><span>Target</span><span>Status</span></div><div id="pbiActionRows"></div></div>
+      <div class="pbi-visual"><div class="pbi-visual-head"><div><h2>Latest Comments & Justifications</h2><p>Filtered evidence from survey participants</p></div></div><div id="pbiLatestComments" class="pbi-comments"></div></div>
+    </div>
+  </div>
+
+  <!-- Legacy support nodes kept hidden so existing V10 admin logic remains backward compatible. -->
+  <div class="hidden" aria-hidden="true">
+    <div id="dashboardTabs"></div><select id="dashDivision"></select><select id="dashFactor"></select><input id="dashSearch">
+    <b id="dResponses"></b><b id="dFav"></b><b id="dNeutral"></b><b id="dUnfav"></b><b id="dComments"></b>
+    <div id="distributionDonut"></div><div id="distributionLegend"></div><div id="heatmapDashboard"></div><div id="factorDashboard"></div><div id="roleDashboard"></div><div id="divisionDashboard"></div><div id="questionFilterNote"></div><div id="questionDashboard"></div><div id="highlights"></div><div id="commentsFeed"></div><div id="recentResponses"></div>
+  </div>
 </section>
 
-<section id="panel_settings" class="hidden"><div class="section-head"><div><div class="eyebrow">Editable project</div><h1 style="font-size:38px;margin:5px 0 0">Project & Branding</h1><p class="autosave-note">Every change is auto-saved to the central project configuration.</p></div><button class="btn btn-primary" onclick="Admin.saveNow()">Save now</button></div><div class="card"><div class="toolbar"><div class="field"><label>Content language</label><select id="contentLang" onchange="Admin.renderSettings()"></select></div><div class="field"><label>Project code</label><input id="projectCode" oninput="Admin.setProjectCode(this.value)"></div><div class="field"><label>Primary colour</label><input id="primaryColor" type="color" oninput="Admin.setTheme('primary',this.value)"></div><div class="field"><label>Accent colour</label><input id="accentColor" type="color" oninput="Admin.setTheme('accent',this.value)"></div></div><div class="grid2" style="margin-top:13px"><div class="field"><label>Project name</label><input id="projectName" oninput="Admin.setProjectText('name',this.value)"></div><div class="field"><label>Survey name</label><input id="surveyNameEdit" oninput="Admin.setProjectText('surveyName',this.value)"></div></div><div class="field" style="margin-top:13px"><label>Survey description</label><textarea id="surveySubtitleEdit" rows="3" oninput="Admin.setProjectText('subtitle',this.value)"></textarea></div></div><div class="card" style="margin-top:15px"><div class="section-head"><div><h2 style="margin:0">Project Logos</h2><p class="small">Upload, replace, enable/disable or delete logos. Changes auto-save.</p></div><label class="btn btn-secondary">+ Add Logo<input type="file" accept="image/*" hidden onchange="Admin.addLogo(this.files[0]);this.value=''"></label></div><div id="logoEditors" class="settings-logos"></div></div></section>
+
+<section id="panel_settings" class="hidden"><div class="section-head"><div><div class="eyebrow">Editable project</div><h1 style="font-size:38px;margin:5px 0 0">Project & Branding</h1><p class="autosave-note">Every change is auto-saved to the central project configuration.</p></div><button class="btn btn-primary" onclick="Admin.saveNow()">Save now</button></div><div class="card"><div class="toolbar"><div class="field"><label>Content language</label><select id="contentLang" onchange="Admin.renderSettings()"></select></div><div class="field"><label>Project code</label><input id="projectCode" oninput="Admin.setProjectCode(this.value)"></div><div class="field"><label>Primary colour</label><input id="primaryColor" type="color" oninput="Admin.setTheme('primary',this.value)"></div><div class="field"><label>Accent colour</label><input id="accentColor" type="color" oninput="Admin.setTheme('accent',this.value)"></div></div><div class="grid2" style="margin-top:13px"><div class="field"><label>Project name</label><input id="projectName" oninput="Admin.setProjectText('name',this.value)"></div><div class="field"><label>Survey name</label><input id="surveyNameEdit" oninput="Admin.setProjectText('surveyName',this.value)"></div></div><div class="field" style="margin-top:13px"><label>Survey description</label><textarea id="surveySubtitleEdit" rows="3" oninput="Admin.setProjectText('subtitle',this.value)"></textarea></div><div class="grid2" style="margin-top:13px"><div class="field"><label>Active campaign name</label><input id="campaignName" oninput="Admin.setCampaignName(this.value)" placeholder="Baseline Safety Climate Survey 2026"></div><div class="field"><label>Campaign status</label><select id="campaignStatus" onchange="Admin.setCampaignStatus(this.value)"><option>Open</option><option>Closed</option><option>Draft</option></select></div></div></div><div class="card" style="margin-top:15px"><div class="section-head"><div><h2 style="margin:0">Project Logos</h2><p class="small">Upload, replace, enable/disable or delete logos. Changes auto-save.</p></div><label class="btn btn-secondary">+ Add Logo<input type="file" accept="image/*" hidden onchange="Admin.addLogo(this.files[0]);this.value=''"></label></div><div id="logoEditors" class="settings-logos"></div></div></section>
 
 <section id="panel_questions" class="hidden"><div class="section-head"><div><div class="eyebrow">Final four-questionnaire structure</div><h1 style="font-size:38px;margin:5px 0 0">Questionnaire Builder</h1><p class="autosave-note">Question wording, order, factor and translations auto-save.</p></div><button class="btn btn-primary" onclick="Admin.saveNow()">Save now</button></div><div class="card"><div class="toolbar"><div class="field"><label>Questionnaire / Role</label><select id="questionRole" onchange="Admin.renderQuestionBuilder()"></select></div><div class="field"><label>Language to edit</label><select id="questionLang" onchange="Admin.renderQuestionBuilder()"></select></div><button class="btn btn-secondary" onclick="Admin.addQuestion()">+ Add Question</button></div><div class="notice" style="margin-top:11px">Each response keeps a question snapshot, so future edits do not corrupt historical results or comments.</div><div id="questionEditors"></div></div><div class="card" style="margin-top:15px"><div class="section-head"><h2 style="margin:0">Open Questions</h2><button class="btn btn-secondary" onclick="Admin.addOpenQuestion()">+ Add Open Question</button></div><div id="openEditors"></div></div></section>
 
@@ -30,4 +109,4 @@
 </main></div>
 
 <div id="questionModal" class="modal-shell hidden" onclick="Admin.modalBackdrop(event)"><div class="modal-card" id="questionModalCard"><div class="modal-head"><div><div class="eyebrow" id="modalFactor"></div><h2 id="modalQuestion" style="margin:5px 0 0"></h2><div class="small" id="modalMeta"></div></div><button class="modal-close" onclick="Admin.closeQuestionModal()">✕</button></div><div id="modalBody"></div></div></div>
-<script src="defaults.js?v=10.0.0-20260921"></script><script src="core.js?v=10.0.0-20260921"></script><script src="cloud.js?v=10.0.0-20260921"></script><script src="admin.js?v=10.0.0-20260921"></script></body></html>
+<script src="defaults.js?v=10.2.0-final"></script><script src="core.js?v=10.2.0-final"></script><script src="cloud.js?v=10.2.0-final"></script><script src="admin.js?v=10.2.0-final"></script><script src="dashboard-pro.js?v=10.2.0-final"></script></body></html>

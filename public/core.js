@@ -37,7 +37,7 @@ window.Core = (() => {
   };
   function migrateConfig(defaults, current){
     const d=clone(defaults), c=current && typeof current === "object" ? current : null;
-    if(!c){ d.version=9; d.schema='hajr-safety-climate-v9'; return d; }
+    if(!c){ d.version=10; d.schema='hajr-safety-climate-v10'; return d; }
 
     if(c.project){
       d.project.code=c.project.code||d.project.code;
@@ -47,6 +47,7 @@ window.Core = (() => {
       });
     }
     if(c.theme && typeof c.theme==='object') d.theme={...d.theme,...c.theme};
+    if(c.campaign && typeof c.campaign==='object') d.campaign={...d.campaign,...c.campaign};
     if(Array.isArray(c.logos) && c.logos.length) d.logos=clone(c.logos);
     if(Array.isArray(c.divisions) && c.divisions.length) d.divisions=clone(c.divisions);
     if(Array.isArray(c.languages)){
@@ -88,7 +89,7 @@ window.Core = (() => {
       d.questions=out;
     }
 
-    d.version=9; d.schema='hajr-safety-climate-v9';
+    d.version=10; d.schema='hajr-safety-climate-v10';
     return d;
   }
   const roleObject = (config,id) => (config.roles||[]).find(r=>r.id===canonicalRole(id));
