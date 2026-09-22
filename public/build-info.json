@@ -1,6 +1,6 @@
 {
-  "build": "V10.3 FINAL CLEAN",
-  "version": "10.3.0",
+  "build": "V10.4 FINAL CLEAN",
+  "version": "10.4.0-final",
   "date": "2026-09-22",
   "architecture": "single public publish directory + Netlify function",
   "roles": [
@@ -21,7 +21,12 @@
     "10-language public survey with RTL support",
     "Voice-to-text comments",
     "Central Netlify Blobs storage",
-    "Verified configuration saving"
+    "Verified configuration saving",
+    "Campaign management: create / activate / close / archive",
+    "Campaign Comparison dashboard: factors / roles / divisions / questions",
+    "Performance thresholds: Green \u226575%, Amber 60\u201374.9%, Red <60%"
   ],
-  "note": "No contractor/company field or contractor analytics. Compatible with existing HAJR config/response stores; adds central action/evidence stores."
+  "note": "No contractor/company field or contractor analytics. Compatible with existing HAJR config/response stores; adds central action/evidence stores.",
+  "label": "V10.4 FINAL CLEAN",
+  "release": "10.4-final"
 }

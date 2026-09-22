@@ -1,60 +1,28 @@
-# HAJR Safety Climate Survey — V10.3 FINAL CLEAN
+# HAJR Safety Climate Survey — V10.4 FINAL CLEAN
 
-Production-ready Safety Climate Survey platform for **70330 – HAJR Expansion Project**.
+Production-ready clean release based on V10.3 with the client-requested campaign controls and management colour logic.
 
-## V10.3 highlights
+## New in V10.4
+- Performance bars now use management thresholds: **Green ≥ 75%**, **Amber 60–74.9%**, **Red < 60%**.
+- New **Campaigns** admin tab: create Draft campaigns, edit campaign details, activate, close and archive without deleting historical responses.
+- Only the **active Open campaign** accepts new public responses.
+- Each response stores both campaign name and campaign ID.
+- New **Campaign Comparison** dashboard page with Campaign A vs Campaign B comparison for overall favourable %, climate index, 8 factors, roles, divisions and question-level change.
+- Campaign history is preserved and available to dashboard filters and reports.
+- Existing V10.3 action close-out, evidence attachments, Word report and Excel management report remain included.
 
-- Power BI-style interactive dashboard with cross-filtering, drill-through and management visuals.
-- Four questionnaire roles only: Executive Leader / Director; Project Director / Manager; Engineer / Supervisor / Technician; Labour / Worker.
-- No contractor/company filter or contractor comparison.
-- 10 survey languages, RTL support and voice-to-text comments.
-- Central Netlify Blob storage for configuration and survey responses.
-- **Action Management workflow**: open an action, edit owner/target/recommended action, record Action Taken / Response, attach close-out evidence, change status and formally close the action. Closed actions require a response plus at least one evidence attachment.
-- Action records and evidence are stored centrally and included in management reports.
-- **Word Management Report** now includes project logos, executive summary, factor/role/division visual charts, question analysis, comments and a full Action Plan & Close-out section.
-- **Excel Management Report** is now a formatted visual report with factor, role and division charts, question sentiment analysis and the Action Plan & Close-out register.
-- Raw survey data remains available from Admin → Data & Reset as CSV / JSON.
+## Deployment
+Upload the contents of this folder to the GitHub repository root. Keep `public/`, `netlify/`, `netlify.toml`, and `package.json` at the root. Netlify publish directory remains `public`.
 
-## Deploy
+Recommended commit message:
+`V10.4 final - campaign management, comparison dashboard and HSE thresholds`
 
-Upload the complete contents of this folder/release ZIP to the GitHub repository root while preserving:
-
-```
-public/
-netlify/
-netlify.toml
-package.json
-README.md
-DEPLOY_CHECKLIST.txt
-```
-
-Netlify build settings remain:
-
-- Publish directory: `public`
-- Functions directory: `netlify/functions`
-- Environment variable: `ADMIN_KEY`
-
-After Netlify shows **Published**, open `/admin.html`, confirm the header says **V10.3 FINAL CLEAN**, then run **Data & Reset → Test central storage**.
-
-## Recommended live test
-
-1. Sign in to Admin.
-2. Run Test central storage.
-3. Submit one public survey response including a comment.
-4. Refresh dashboard and open a question drill-through.
-5. Generate Actions → Manage one action.
-6. Enter Action Taken / Response, attach evidence and save it as In Progress.
-7. Reopen the action and confirm the response/evidence persisted.
-8. Mark Closed (requires response + evidence).
-9. Download Word Report and Excel Report and confirm the action close-out information is included.
-
-## Storage
-
-V10.3 uses the existing response/config stores and adds two central stores for action management:
-
-- `hajr-safety-config`
-- `hajr-safety-responses`
-- `hajr-safety-actions`
-- `hajr-safety-action-files`
-
-V10.3 keeps the same core survey schema (`hajr-safety-climate-v10`) for compatibility with existing configuration and responses.
+After Netlify shows **Published**, test in this order:
+1. Admin → Data & Reset → Test central storage.
+2. Admin → Campaigns → confirm the baseline campaign is Active/Open.
+3. Create a Draft campaign, then Activate it and confirm the previous campaign becomes Closed.
+4. Open the public survey and submit one test response; confirm it is linked to the new campaign.
+5. Dashboard → Campaign Comparison → compare the baseline and new campaign.
+6. Confirm Role / Factor / Division bars use Green / Amber / Red thresholds.
+7. Test an Action response + evidence attachment + closure.
+8. Generate Word and Excel reports.

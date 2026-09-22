@@ -17,7 +17,7 @@ export default async (req, context) => {
   const url=new URL(req.url),action=url.searchParams.get("action")||"";
   try{
     if(action==="health"&&req.method==="GET"){
-      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.3-final"});
+      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.4-final"});
     }
 
     if(action==="config"&&req.method==="GET"){
@@ -28,9 +28,13 @@ export default async (req, context) => {
     if(action==="submit"&&req.method==="POST"){
       const r=await req.json();
       if(!r||!r.role||!Array.isArray(r.answers)||!r.answers.length)return json({error:"Invalid submission"},400);
+      const cfg=await configStore().get("main",{type:"json",consistency:"strong"});
+      const active=(cfg?.campaigns||[]).find(c=>c?.isActive)||cfg?.campaign||null;
+      if(active&&String(active.status||"Open")!=="Open")return json({error:"Campaign closed",message:"The active survey campaign is not accepting responses."},409);
+      if(active){r.campaign=String(active.name||r.campaign||"Safety Climate Survey");r.campaignId=String(active.id||r.campaignId||"");}
       const id=r.id||crypto.randomUUID();r.id=id;r.receivedAt=new Date().toISOString();r.schemaVersion=Number(r.schemaVersion||10);
       await responseStore().setJSON(`${Date.now()}_${id}`,r);
-      return json({ok:true,id,savedAt:r.receivedAt});
+      return json({ok:true,id,savedAt:r.receivedAt,campaign:r.campaign,campaignId:r.campaignId||null});
     }
 
     if(action==="login"&&req.method==="POST"){
@@ -111,7 +115,7 @@ export default async (req, context) => {
       // Store a clean copy and then read the exact object back with strong
       // consistency. Returning that raw stored object lets the admin verify the
       // save without comparing against a migrated/default-normalized config.
-      const stored={...incoming,version:"10.3-final",schema:"hajr-safety-climate-v10",updatedAt:new Date().toISOString()};
+      const stored={...incoming,version:"10.4-final",schema:"hajr-safety-climate-v10",updatedAt:new Date().toISOString()};
       const store=configStore();
       await store.setJSON("main",stored);
       const verified=await store.get("main",{type:"json",consistency:"strong"});

@@ -37,7 +37,7 @@ window.Core = (() => {
   };
   function migrateConfig(defaults, current){
     const d=clone(defaults), c=current && typeof current === "object" ? current : null;
-    if(!c){ d.version=10; d.schema='hajr-safety-climate-v10'; return d; }
+    if(!c){ d.version='10.4-final'; d.release='10.4-final'; d.schema='hajr-safety-climate-v10'; return d; }
 
     if(c.project){
       d.project.code=c.project.code||d.project.code;
@@ -48,6 +48,28 @@ window.Core = (() => {
     }
     if(c.theme && typeof c.theme==='object') d.theme={...d.theme,...c.theme};
     if(c.campaign && typeof c.campaign==='object') d.campaign={...d.campaign,...c.campaign};
+    // V10.4 campaign registry: preserve all historical campaigns while maintaining
+    // one active campaign pointer for backward compatibility with V10.x responses.
+    const savedCampaigns=Array.isArray(c.campaigns)?clone(c.campaigns):[];
+    if(savedCampaigns.length){
+      d.campaigns=savedCampaigns.map((x,i)=>({
+        id:String(x.id||`campaign_${i+1}`).replace(/[^a-zA-Z0-9._-]/g,'_'),
+        name:String(x.name||`Campaign ${i+1}`),
+        status:['Draft','Open','Closed','Archived'].includes(x.status)?x.status:'Draft',
+        startDate:String(x.startDate||''),endDate:String(x.endDate||''),
+        description:String(x.description||''),isActive:!!x.isActive,
+        createdAt:x.createdAt||new Date().toISOString()
+      }));
+    }else{
+      const legacy=d.campaign||{};
+      d.campaigns=[{id:String(legacy.id||'campaign_baseline_2026'),name:String(legacy.name||'Baseline Safety Climate Survey 2026'),status:['Draft','Open','Closed','Archived'].includes(legacy.status)?legacy.status:'Open',startDate:String(legacy.startDate||''),endDate:String(legacy.endDate||''),description:String(legacy.description||'Baseline safety climate survey campaign.'),isActive:true,createdAt:legacy.createdAt||new Date().toISOString()}];
+    }
+    let active=d.campaigns.find(x=>x.isActive);
+    if(!active && c.campaign){active=d.campaigns.find(x=>x.id===c.campaign.id)||d.campaigns.find(x=>x.name===c.campaign.name);}
+    if(!active) active=d.campaigns.find(x=>x.status==='Open')||d.campaigns[0];
+    d.campaigns.forEach(x=>x.isActive=x.id===active.id);
+    d.campaign={...active};
+    if(c.performanceThresholds && typeof c.performanceThresholds==='object') d.performanceThresholds={...d.performanceThresholds,...c.performanceThresholds};
     if(Array.isArray(c.logos) && c.logos.length) d.logos=clone(c.logos);
     if(Array.isArray(c.divisions) && c.divisions.length) d.divisions=clone(c.divisions);
     if(Array.isArray(c.languages)){
@@ -89,7 +111,7 @@ window.Core = (() => {
       d.questions=out;
     }
 
-    d.version=10; d.schema='hajr-safety-climate-v10';
+    d.version='10.4-final'; d.release='10.4-final'; d.schema='hajr-safety-climate-v10';
     return d;
   }
   const roleObject = (config,id) => (config.roles||[]).find(r=>r.id===canonicalRole(id));

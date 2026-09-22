@@ -1,16 +1,17 @@
-HAJR V10.3 FINAL CLEAN — GO-LIVE CHECK
+HAJR SAFETY CLIMATE V10.4 FINAL CLEAN — DEPLOY CHECKLIST
 
-[ ] Upload complete release to GitHub root
-[ ] Netlify latest deploy = Published
-[ ] /admin.html header = V10.3 FINAL CLEAN
-[ ] Data & Reset → Test central storage = PASS
-[ ] Change Project Name → Save → refresh = persists
-[ ] Public survey opens and submits a test response
-[ ] Dashboard Refresh Data shows the test response
-[ ] Question drill-through opens comments
-[ ] Generate Actions → Manage action works
-[ ] Action Taken / Response saves centrally
-[ ] Evidence attachment uploads and can be reopened
-[ ] Closed action requires response + evidence
-[ ] Word Report contains logos + Action Plan & Close-out
-[ ] Excel Report contains visual charts + Action Plan & Close-out
+[ ] Upload all V10.4 files to GitHub root
+[ ] Commit: V10.4 final - campaign management, comparison dashboard and HSE thresholds
+[ ] Wait for Netlify Published
+[ ] Open /admin.html and confirm V10.4 FINAL CLEAN
+[ ] Test central storage
+[ ] Campaigns: baseline shown Active/Open
+[ ] Create Draft campaign
+[ ] Activate new campaign; previous campaign becomes Closed
+[ ] Public survey accepts responses only when active campaign is Open
+[ ] Submit test response and refresh dashboard
+[ ] Performance bars: Green >=75 / Amber 60-74.9 / Red <60
+[ ] Campaign Comparison: select A and B and verify factor / role / division / question deltas
+[ ] Action Plan: response + evidence + close-out still works
+[ ] Word report generates
+[ ] Excel report generates
