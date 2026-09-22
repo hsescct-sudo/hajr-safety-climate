@@ -1,71 +1,60 @@
-# HAJR Safety Climate Survey — V10.2 FINAL CLEAN
+# HAJR Safety Climate Survey — V10.3 FINAL CLEAN
 
-Project: **70330 – HAJR Expansion Project**
+Production-ready Safety Climate Survey platform for **70330 – HAJR Expansion Project**.
 
-This is the clean deployment package based on the latest V10.1 work, consolidated into one production structure. It keeps the existing central Netlify Blob stores so current project configuration and submitted responses can continue to be used.
+## V10.3 highlights
 
-## Final production structure
+- Power BI-style interactive dashboard with cross-filtering, drill-through and management visuals.
+- Four questionnaire roles only: Executive Leader / Director; Project Director / Manager; Engineer / Supervisor / Technician; Labour / Worker.
+- No contractor/company filter or contractor comparison.
+- 10 survey languages, RTL support and voice-to-text comments.
+- Central Netlify Blob storage for configuration and survey responses.
+- **Action Management workflow**: open an action, edit owner/target/recommended action, record Action Taken / Response, attach close-out evidence, change status and formally close the action. Closed actions require a response plus at least one evidence attachment.
+- Action records and evidence are stored centrally and included in management reports.
+- **Word Management Report** now includes project logos, executive summary, factor/role/division visual charts, question analysis, comments and a full Action Plan & Close-out section.
+- **Excel Management Report** is now a formatted visual report with factor, role and division charts, question sentiment analysis and the Action Plan & Close-out register.
+- Raw survey data remains available from Admin → Data & Reset as CSV / JSON.
 
-- `public/` — the only published website folder
-- `netlify/functions/survey.mjs` — API for configuration and responses
-- `netlify.toml` — publishes `public/`
-- `package.json` — Netlify Blobs dependency
+## Deploy
 
-There are no duplicate website files in the repository root.
+Upload the complete contents of this folder/release ZIP to the GitHub repository root while preserving:
 
-## Final roles
+```
+public/
+netlify/
+netlify.toml
+package.json
+README.md
+DEPLOY_CHECKLIST.txt
+```
 
-1. Executive Leader / Director
-2. Project Director / Manager
-3. Engineer / Supervisor / Technician
-4. Labour / Worker
+Netlify build settings remain:
 
-## Dashboard
+- Publish directory: `public`
+- Functions directory: `netlify/functions`
+- Environment variable: `ADMIN_KEY`
 
-Power BI-style dashboard with:
+After Netlify shows **Published**, open `/admin.html`, confirm the header says **V10.3 FINAL CLEAN**, then run **Data & Reset → Test central storage**.
 
-- Campaign / Role / Division / Factor / Language / Period filters
-- KPI tiles
-- Favourable / Neutral / Unfavourable donut
-- Role and Division bar charts
-- 8-factor analysis
-- Role × Factor heatmap
-- Safety Climate radar
-- Campaign / factor trend chart
-- Priority bubble map
-- Role sentiment stacked bars
-- Question drill-through
-- Comments / justification analysis
-- Evidence-based Action Plan
+## Recommended live test
 
-There is **no contractor/company field or contractor dashboard analysis**.
+1. Sign in to Admin.
+2. Run Test central storage.
+3. Submit one public survey response including a comment.
+4. Refresh dashboard and open a question drill-through.
+5. Generate Actions → Manage one action.
+6. Enter Action Taken / Response, attach evidence and save it as In Progress.
+7. Reopen the action and confirm the response/evidence persisted.
+8. Mark Closed (requires response + evidence).
+9. Download Word Report and Excel Report and confirm the action close-out information is included.
 
-## Final report outputs
+## Storage
 
-From Admin → Dashboard:
+V10.3 uses the existing response/config stores and adds two central stores for action management:
 
-- **Word Report** — management report with executive summary, factors, roles, divisions, question analysis, comments and action plan.
-- **Excel Workbook** — multiple worksheets: Executive Summary, Factor Analysis, Role Comparison, Division Analysis, Question Analysis, Comments, Action Plan and Raw Responses.
+- `hajr-safety-config`
+- `hajr-safety-responses`
+- `hajr-safety-actions`
+- `hajr-safety-action-files`
 
-The action logic flags low favourable / high unfavourable findings and creates editable management recommendations. Management/HSE review is still required before formal issue.
-
-## Saving fix
-
-V10.2 aligns browser and server configuration schema/version (`hajr-safety-climate-v10`). The server writes the configuration, reads it back using strong consistency, and the Admin verifies the returned stored object.
-
-## Deploy today
-
-1. Create/use one GitHub repo for this final version.
-2. Upload the **contents of this folder** so `public`, `netlify`, `netlify.toml` and `package.json` are at the repository root.
-3. Keep the existing Netlify environment variable `ADMIN_KEY`.
-4. Netlify should detect `netlify.toml` and publish `public/`.
-5. Wait for **Published**.
-6. Open `/admin.html` and confirm the header says **V10.2 FINAL CLEAN**.
-7. Run **Data & Reset → Test central storage**.
-8. Change the Project Name, press **Save now**, and confirm **Saved & verified**.
-9. Open the public survey in an Incognito window and verify the changed project name appears on the language selection page.
-10. Submit one test response with a comment, refresh Dashboard, drill into the question, then test Word Report and Excel Workbook.
-
-## Important
-
-Do not upload older V8/V9/V10 root copies beside this project. This package is intentionally clean and has only one published frontend source: `public/`.
+V10.3 keeps the same core survey schema (`hajr-safety-climate-v10`) for compatibility with existing configuration and responses.

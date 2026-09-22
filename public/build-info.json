@@ -1,6 +1,6 @@
 {
-  "build": "V10.2 FINAL CLEAN",
-  "version": "10.2.0",
+  "build": "V10.3 FINAL CLEAN",
+  "version": "10.3.0",
   "date": "2026-09-22",
   "architecture": "single public publish directory + Netlify function",
   "roles": [
@@ -14,13 +14,14 @@
     "Role/division/factor/language/campaign/period cross-filtering",
     "Radar, heatmap, trend, bubble, stacked sentiment and drill-through charts",
     "Question comments and justifications drill-through",
-    "Evidence-based management action plan",
-    "One-click Word management report",
-    "One-click multi-sheet Excel workbook",
+    "Central action management with response, status, owner and target",
+    "Close-out evidence attachments stored centrally",
+    "Word management report with project logos and action close-out register",
+    "Excel visual management report with charts and action close-out register",
     "10-language public survey with RTL support",
     "Voice-to-text comments",
     "Central Netlify Blobs storage",
     "Verified configuration saving"
   ],
-  "note": "No contractor/company field or contractor analytics. Compatible with existing HAJR Netlify Blob stores."
+  "note": "No contractor/company field or contractor analytics. Compatible with existing HAJR config/response stores; adds central action/evidence stores."
 }
