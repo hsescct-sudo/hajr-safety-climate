@@ -1,33 +1,52 @@
-# HAJR Safety Climate Survey — V10.5 FINAL CLEAN
+# HAJR Safety Climate Survey — V10.6 FINAL CLEAN
 
-Production-ready clean release based on the approved V10.4 platform, with clean management threshold bars and a fully interactive campaign comparison dashboard.
+Production-ready release based on V10.5, adding a dedicated **Report Center** while preserving the approved dashboard, campaign management, comparison dashboard and action close-out workflow.
 
+## New in V10.6
+- One **Report Center** button replaces the separate Word / Excel buttons.
+- Choose the campaign to report.
+- Choose one of two report families:
+  1. **Management Executive Report** — the existing report is retained.
+  2. **Detailed Safety Climate Report** — new detailed final survey report.
+- Choose **Word** or **Excel** output for either report.
+- Detailed report includes:
+  - Project logos and campaign details
+  - Executive summary
+  - Overall favourable / neutral / unfavourable results
+  - 8 Safety Climate Factor overview
+  - Dedicated section for every factor
+  - Question-by-question sentiment results
+  - Most favourable and most unfavourable findings
+  - Favourable by Role and Division
+  - Selected comments / justifications
+  - Recommended management response
+  - Next steps and priority improvement areas
+  - Management Action Plan & Close-out Register
+- Detailed Excel output includes visual performance bars, factor sections, question sentiment tables, role/division charts, comments and the action register.
+- Reports always use **All Respondents** for the selected campaign so dashboard filters cannot accidentally create a partial final report.
+- No external industry benchmark is claimed; internal HAJR performance thresholds are used for management interpretation.
+
+## Existing V10.5 functionality retained
+- Clean Green / Amber / Red performance bars
+- Power BI-style interactive dashboard
+- Campaign Management
+- Fully interactive Campaign Comparison
+- Question drill-through and comments
+- Central action management and evidence attachments
+- 10-language public survey and voice-to-text
 
 ## Deployment
 Upload the contents of this folder to the GitHub repository root. Keep `public/`, `netlify/`, `netlify.toml`, and `package.json` at the root. Netlify publish directory remains `public`.
 
 Recommended commit message:
-`V10.5 final - clean threshold bars and interactive campaign comparison`
+`V10.6 final - report center and detailed safety climate report`
 
-After Netlify shows **Published**, test in this order:
-1. Admin → Data & Reset → Test central storage.
-2. Admin → Campaigns → confirm the baseline campaign is Active/Open.
-3. Create a Draft campaign, then Activate it and confirm the previous campaign becomes Closed.
-4. Open the public survey and submit one test response; confirm it is linked to the new campaign.
-5. Dashboard → Campaign Comparison → compare the baseline and new campaign.
-6. Confirm Role / Factor / Division bars use Green / Amber / Red thresholds.
-7. Test an Action response + evidence attachment + closure.
-8. Generate Word and Excel reports.
-
-
-## New in V10.5
-- Clean HSE threshold colouring: only the score bar is Green / Amber / Red; cards and rows stay white.
-- Full interactive Campaign Comparison dashboard with A/B sentiment, factor, role, division and question comparison.
-- Comparison cross-filtering: click Factor / Role / Division to recalculate the complete comparison.
-- Comparison view modes: All, Improved, Declined, Major changes ≥ 10 points.
-- Question drill-through with campaign-specific comments and evidence.
-- Low sample-size warning instead of misleading zero values; missing comparison samples display as N/A.
-- Evidence / action comparison and management signals are included.
-
-Recommended commit:
-`V10.5 final - clean threshold bars and interactive campaign comparison`
+After Netlify shows **Published**, test:
+1. Admin → confirm **V10.6 FINAL CLEAN**.
+2. Dashboard → **Report Center**.
+3. Select a campaign.
+4. Generate **Management Executive Report → Word**.
+5. Generate **Management Executive Report → Excel**.
+6. Generate **Detailed Safety Climate Report → Word**.
+7. Generate **Detailed Safety Climate Report → Excel**.
+8. Confirm the Action Plan / close-out status appears in both report families.

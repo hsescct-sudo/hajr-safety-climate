@@ -1,6 +1,6 @@
 {
-  "build": "V10.5 FINAL CLEAN",
-  "version": "10.5.0-final",
+  "build": "V10.6 FINAL CLEAN",
+  "version": "10.6.0-final",
   "date": "2026-09-22",
   "architecture": "single public publish directory + Netlify function",
   "roles": [
@@ -11,22 +11,21 @@
   ],
   "features": [
     "Power BI-style interactive dashboard",
-    "Role/division/factor/language/campaign/period cross-filtering",
-    "Radar, heatmap, trend, bubble, stacked sentiment and drill-through charts",
-    "Question comments and justifications drill-through",
-    "Central action management with response, status, owner and target",
-    "Close-out evidence attachments stored centrally",
-    "Word management report with project logos and action close-out register",
-    "Excel visual management report with charts and action close-out register",
-    "10-language public survey with RTL support",
-    "Voice-to-text comments",
-    "Central Netlify Blobs storage",
-    "Verified configuration saving",
+    "Clean HSE threshold bars: Green \u226575%, Amber 60\u201374.9%, Red <60%",
+    "Fully interactive Campaign Comparison dashboard",
     "Campaign management: create / activate / close / archive",
-    "Campaign Comparison dashboard: factors / roles / divisions / questions",
-    "Performance thresholds: Green \u226575%, Amber 60\u201374.9%, Red <60%"
+    "Report Center with campaign selection, report type selection and output format selection",
+    "Management Executive Report retained in Word and Excel formats",
+    "New Detailed Safety Climate Report in Word and Excel formats",
+    "Detailed report: executive summary, 8-factor overview and dedicated factor sections",
+    "Detailed report: question sentiment, strengths, concerns, role/division analysis, comments and recommendations",
+    "Management Action Plan and Close-out Register included in both report families",
+    "Project logos included in Word/Excel report outputs",
+    "Central action management with response, owner, target, status and evidence attachments",
+    "10-language public survey with RTL support and voice-to-text comments",
+    "Central Netlify Blobs storage and verified configuration saving"
   ],
-  "note": "No contractor/company field or contractor analytics. Compatible with existing HAJR config/response stores; adds central action/evidence stores.",
-  "label": "V10.5 FINAL CLEAN",
-  "release": "10.5-final"
+  "note": "No contractor/company field or contractor analytics. Detailed reporting uses HAJR project thresholds for internal interpretation and does not claim an external industry benchmark.",
+  "label": "V10.6 FINAL CLEAN",
+  "release": "10.6-final"
 }
