@@ -1,17 +1,23 @@
-HAJR SAFETY CLIMATE V10.6 FINAL CLEAN — DEPLOY CHECKLIST
+HAJR V10.8 FINAL CLEAN — GO-LIVE CHECK
 
-[ ] Upload all V10.6 files to GitHub root
-[ ] Commit: V10.6 final - report center and detailed safety climate report
-[ ] Wait for Netlify → Published
-[ ] Open /admin.html and confirm V10.6 FINAL CLEAN
-[ ] Dashboard → Report Center opens
-[ ] Campaign selector shows available campaigns
-[ ] Report 1 Management Executive Report → Word downloads
-[ ] Report 1 Management Executive Report → Excel downloads
-[ ] Report 2 Detailed Safety Climate Report → Word downloads
-[ ] Report 2 Detailed Safety Climate Report → Excel downloads
-[ ] Detailed report shows 8 factor sections
-[ ] Word output contains project logos
-[ ] Action Plan & close-out register appears in both report families
-[ ] Test Campaign Comparison still works
-[ ] Test central storage / Save verification still works
+[ ] GitHub commit contains only the new V10.8 files
+[ ] Netlify deploy = Published
+[ ] Admin header = V10.8 FINAL CLEAN
+[ ] Data & Reset > Test central storage = passed
+[ ] Save now = Saved & verified
+[ ] Public language page = 11 languages
+[ ] Filipino / Tagalog card is visible
+[ ] Filipino voice-to-text locale = fil-PH
+[ ] Dashboard period = 7 / 14 / 21 / 30 days
+[ ] Campaign comparison respects the same Period filter
+[ ] Sentiment Mix shows % inside Green / Amber / Red segments
+[ ] Report Center has Campaign selector
+[ ] Report Center has Division selector
+[ ] Report Center has 3 report types
+[ ] Report 1 Word + Excel works
+[ ] Report 2 Word + Excel works
+[ ] Report 3 Word + Excel works
+[ ] Open Question Summary is present in reports
+[ ] QR Poster button opens poster.html
+[ ] A3 PDF poster opens and QR scans to the public survey
+[ ] Existing Actions / Evidence / Close-out still work

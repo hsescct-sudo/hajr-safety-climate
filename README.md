@@ -1,52 +1,70 @@
-# HAJR Safety Climate Survey — V10.6 FINAL CLEAN
+# HAJR Safety Climate Survey — V10.8 FINAL CLEAN
 
-Production-ready release based on V10.5, adding a dedicated **Report Center** while preserving the approved dashboard, campaign management, comparison dashboard and action close-out workflow.
+Project: **70330 – HAJR Expansion Project**
 
-## New in V10.6
-- One **Report Center** button replaces the separate Word / Excel buttons.
-- Choose the campaign to report.
-- Choose one of two report families:
-  1. **Management Executive Report** — the existing report is retained.
-  2. **Detailed Safety Climate Report** — new detailed final survey report.
-- Choose **Word** or **Excel** output for either report.
-- Detailed report includes:
-  - Project logos and campaign details
-  - Executive summary
-  - Overall favourable / neutral / unfavourable results
-  - 8 Safety Climate Factor overview
-  - Dedicated section for every factor
-  - Question-by-question sentiment results
-  - Most favourable and most unfavourable findings
-  - Favourable by Role and Division
-  - Selected comments / justifications
-  - Recommended management response
-  - Next steps and priority improvement areas
-  - Management Action Plan & Close-out Register
-- Detailed Excel output includes visual performance bars, factor sections, question sentiment tables, role/division charts, comments and the action register.
-- Reports always use **All Respondents** for the selected campaign so dashboard filters cannot accidentally create a partial final report.
-- No external industry benchmark is claimed; internal HAJR performance thresholds are used for management interpretation.
+This release is based directly on **V10.7 FINAL CLEAN** and closes the latest client comments without removing the existing dashboard, campaign, action-management or reporting features.
 
-## Existing V10.5 functionality retained
-- Clean Green / Amber / Red performance bars
-- Power BI-style interactive dashboard
-- Campaign Management
-- Fully interactive Campaign Comparison
+## Client comments closed in V10.8
+
+1. **Division-based reports** — Report Center now has Campaign + Division scope. Choose **All Divisions** or any individual division.
+2. **Percentages on sentiment colours** — Favourable / Neutral / Unfavourable stacked bars now display the percentages inside the colour segments where readable, with tooltips for every segment.
+3. **Philippines language** — **Filipino / Tagalog** is forced into older cloud configurations during migration and remains language #11. Voice-to-text locale: `fil-PH`.
+4. **Open-question consolidation** — all three report families contain a dedicated Open Question Summary grouped by question, with response count, role, division, date and response text.
+5. **QR poster** — Admin dashboard includes a **QR Poster** button. The deployment also contains a printable poster page plus A3 PDF/PNG assets.
+6. **Period filter** — Dashboard and campaign comparison support **All Responses / 7 / 14 / 21 / 30 days**.
+
+## Report Center
+
+Scope selectors:
+- Campaign
+- Division (All Divisions or one division)
+
+Report families:
+1. **Management Executive Report** — Word / Excel
+2. **Detailed Safety Climate Report** — Word / Excel
+3. **Client Summary Report** — Word / Excel
+
+All report families use the selected campaign and division scope. File names include the selected division.
+
+## Existing features preserved
+
+- Campaign management: Create / Activate / Close / Archive
+- Fully interactive Campaign Comparison dashboard
+- Four final questionnaires / roles
+- Eight safety climate factors
+- Eleven languages including Filipino / Tagalog
+- RTL support where required
+- Voice-to-text comments / open questions
+- Threshold colours: Green ≥75%, Amber 60–74.9%, Red <60%
 - Question drill-through and comments
-- Central action management and evidence attachments
-- 10-language public survey and voice-to-text
+- Action management, response, owner, target date, evidence attachments and formal close-out
+- Central Netlify Blobs storage
+- Verified configuration save / round-trip checking
 
 ## Deployment
-Upload the contents of this folder to the GitHub repository root. Keep `public/`, `netlify/`, `netlify.toml`, and `package.json` at the root. Netlify publish directory remains `public`.
+
+Upload the contents of this package to the existing HAJR GitHub repository so that these remain at repo root:
+
+- `public/`
+- `netlify/`
+- `netlify.toml`
+- `package.json`
+
+Keep the existing Netlify `ADMIN_KEY`. Wait for **Published**, then hard refresh the Admin page (`Ctrl + F5`).
 
 Recommended commit message:
-`V10.6 final - report center and detailed safety climate report`
 
-After Netlify shows **Published**, test:
-1. Admin → confirm **V10.6 FINAL CLEAN**.
-2. Dashboard → **Report Center**.
-3. Select a campaign.
-4. Generate **Management Executive Report → Word**.
-5. Generate **Management Executive Report → Excel**.
-6. Generate **Detailed Safety Climate Report → Word**.
-7. Generate **Detailed Safety Climate Report → Excel**.
-8. Confirm the Action Plan / close-out status appears in both report families.
+`V10.8 final - client comments, division reports, Filipino, open questions, QR poster and period filters`
+
+## Post-deploy check
+
+- Admin header shows **V10.8 FINAL CLEAN**
+- Public language page shows **Filipino / Tagalog** and 11 languages
+- Dashboard Period shows 7 / 14 / 21 / 30 days
+- Sentiment Mix bars show percentages by colour
+- Report Center shows Campaign + Division + 3 Report Types + Word/Excel
+- Generate one All Divisions report and one single-division report
+- Open Question Summary appears in reports
+- QR Poster button opens and the QR points to `https://safety-climate-survey.netlify.app/`
+- Data & Reset → Test central storage passes
+- Save a harmless configuration change and confirm **Saved & verified**

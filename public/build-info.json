@@ -1,7 +1,7 @@
 {
-  "build": "V10.6 FINAL CLEAN",
-  "version": "10.6.0-final",
-  "date": "2026-09-22",
+  "build": "V10.8 FINAL CLEAN",
+  "version": "10.8-final",
+  "date": "2026-09-26",
   "architecture": "single public publish directory + Netlify function",
   "roles": [
     "Executive Leader / Director",
@@ -11,7 +11,7 @@
   ],
   "features": [
     "Power BI-style interactive dashboard",
-    "Clean HSE threshold bars: Green \u226575%, Amber 60\u201374.9%, Red <60%",
+    "Clean HSE threshold bars: Green ≥75%, Amber 60–74.9%, Red <60%",
     "Fully interactive Campaign Comparison dashboard",
     "Campaign management: create / activate / close / archive",
     "Report Center with campaign selection, report type selection and output format selection",
@@ -22,10 +22,19 @@
     "Management Action Plan and Close-out Register included in both report families",
     "Project logos included in Word/Excel report outputs",
     "Central action management with response, owner, target, status and evidence attachments",
-    "10-language public survey with RTL support and voice-to-text comments",
-    "Central Netlify Blobs storage and verified configuration saving"
+    "11-language public survey with RTL support and voice-to-text comments",
+    "Central Netlify Blobs storage and verified configuration saving",
+    "Tagalog / Filipino public survey translation with fil-PH voice-to-text locale",
+    "Report Center division selector: All Divisions or one selected division",
+    "Report 3 Client Summary Report in Word and Excel",
+    "Consolidated open-question responses in all report families",
+    "Dashboard period filters: 7 / 14 / 21 / 30 days",
+    "Sentiment bars display favourable / neutral / unfavourable percentages inside the colour segments",
+    "QR Poster available from Admin with printable HTML and A3 PDF",
+    "Forced migration adds Filipino / Tagalog to older 10-language cloud configurations",
+    "Netlify function version aligned to V10.8 for verified configuration saves"
   ],
   "note": "No contractor/company field or contractor analytics. Detailed reporting uses HAJR project thresholds for internal interpretation and does not claim an external industry benchmark.",
-  "label": "V10.6 FINAL CLEAN",
-  "release": "10.6-final"
+  "label": "V10.8 FINAL CLEAN",
+  "release": "V10.8 FINAL CLEAN"
 }

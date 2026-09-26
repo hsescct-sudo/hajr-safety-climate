@@ -37,7 +37,7 @@ window.Core = (() => {
   };
   function migrateConfig(defaults, current){
     const d=clone(defaults), c=current && typeof current === "object" ? current : null;
-    if(!c){ d.version='10.5-final'; d.release='10.5-final'; d.schema='hajr-safety-climate-v10'; return d; }
+    if(!c){ d.version='10.8-final'; d.release='10.8-final'; d.schema='hajr-safety-climate-v10'; return d; }
 
     if(c.project){
       d.project.code=c.project.code||d.project.code;
@@ -76,9 +76,22 @@ window.Core = (() => {
       const map=Object.fromEntries(c.languages.map(x=>[x.code,x]));
       d.languages=d.languages.map(x=>({...x,...(map[x.code]||{})}));
     }
+    // V10.8: force Filipino/Tagalog into migrated cloud configurations even when an older live config only contains 10 languages.
+    if(!(d.languages||[]).some(x=>x.code==='fil')){
+      d.languages.push({code:'fil',name:'Tagalog / Filipino',native:'Filipino / Tagalog',enabled:true,dir:'ltr'});
+    }
+    const filLang=(d.languages||[]).find(x=>x.code==='fil');
+    if(filLang){filLang.name='Tagalog / Filipino';filLang.native='Filipino / Tagalog';filLang.enabled=filLang.enabled!==false;filLang.dir='ltr';}
     if(c.factors && typeof c.factors==='object') Object.keys(d.factors).forEach(k=>d.factors[k]=mergeText(d.factors[k],c.factors[k]));
     if(c.ui && typeof c.ui==='object') Object.keys(d.ui).forEach(l=>{d.ui[l]={...d.ui[l],...(c.ui[l]||{})};});
-    if(Array.isArray(c.openQuestions)) d.openQuestions=clone(c.openQuestions);
+    // Preserve edited open questions while adding translations introduced by newer releases.
+    if(Array.isArray(c.openQuestions)){
+      const defOpen=new Map((d.openQuestions||[]).map(q=>[q.id,q]));
+      d.openQuestions=c.openQuestions.map(q=>{
+        const def=defOpen.get(q.id)||{};
+        return {...def,...clone(q),...mergeText(def,q),id:q.id||def.id};
+      });
+    }
 
     // Preserve role edits while enforcing the final four-questionnaire structure.
     const savedRoles=Array.isArray(c.roles)?c.roles:[];
@@ -98,20 +111,25 @@ window.Core = (() => {
       };
     });
 
-    // Preserve questionnaire edits. Old Engineer/Supervisor questions become the merged questionnaire.
+    // Preserve questionnaire edits while merging in any new language translations.
     if(c.questions && typeof c.questions==='object'){
       const out={};
       d.roles.forEach(r=>{
-        if(r.id===MERGED_ROLE){
-          out[r.id]=clone(c.questions[MERGED_ROLE] || c.questions['Engineer / Supervisor'] || d.questions[r.id] || []);
-        }else{
-          out[r.id]=clone(c.questions[r.id] || d.questions[r.id] || []);
-        }
+        const defList=clone(d.questions[r.id]||[]);
+        const curList=clone(r.id===MERGED_ROLE
+          ? (c.questions[MERGED_ROLE] || c.questions['Engineer / Supervisor'] || defList)
+          : (c.questions[r.id] || defList));
+        const defById=new Map(defList.map(q=>[q.id,q]));
+        out[r.id]=curList.map(q=>{
+          const def=defById.get(q.id);
+          if(!def) return q;
+          return {...def,...q,text:mergeText(def.text,q.text)};
+        });
       });
       d.questions=out;
     }
 
-    d.version='10.5-final'; d.release='10.5-final'; d.schema='hajr-safety-climate-v10';
+    d.version='10.8-final'; d.release='10.8-final'; d.schema='hajr-safety-climate-v10';
     return d;
   }
   const roleObject = (config,id) => (config.roles||[]).find(r=>r.id===canonicalRole(id));
