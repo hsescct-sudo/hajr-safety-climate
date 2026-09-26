@@ -8,9 +8,9 @@ window.Admin = (() => {
   const value=a=>Core.normalizedValue(a);
   const pct=(vals,p,d=1)=>Core.pct(vals,p,d);
   const responseRole=r=>canonical(r?.role);
-  const projectLine=()=>`${config.project.code} – ${T(config.project.name)}`;
+  const projectLine=()=>{const code=String(config.project.code||'').trim(),name=T(config.project.name);return code?`${code} – ${name}`:name;};
   const download=(name,content,type='application/json')=>{const b=new Blob([content],{type}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);};
-  const notifyDashboard=()=>window.dispatchEvent(new CustomEvent('hajr:data',{detail:{config,responses}}));
+  const notifyDashboard=()=>window.dispatchEvent(new CustomEvent('safety:data',{detail:{config,responses}}));
 
 
   function stableStringify(value){
@@ -35,7 +35,7 @@ window.Admin = (() => {
     if(changeSerial===savedSerial && !manual){setSaveState('','Saved');return;}
     saving=true;const startSerial=changeSerial;setSaveState('saving','Saving…');
     try{
-      config.version='10.8-final';config.release='10.8-final';config.schema='hajr-safety-climate-v10';
+      config.version='10.9-final';config.release='10.9-final';config.schema='safety-climate-v10';
       const snapshot=Core.clone(config);
       const expected=persistSignature(snapshot);
       const out=await Cloud.saveConfig(snapshot);
@@ -252,9 +252,9 @@ window.Admin = (() => {
 
   async function testStorage(){const box=$('storageStatus');box.className='storage-card warn';box.querySelector('.small').textContent='Testing central read/write/delete access…';try{const out=await Cloud.storageCheck();box.className='storage-card good';box.querySelector('.small').textContent=out.message||'Central storage is working.';}catch(e){box.className='storage-card bad';box.querySelector('.small').textContent='Storage test failed: '+e.message;}}
   async function resetResponses(){if(!confirm('Delete ALL submitted responses and reset the dashboard to zero?'))return;if(!confirm('Final confirmation: this cannot be undone unless you exported a backup.'))return;try{const check=await Cloud.storageCheck();if(!check?.ok)throw new Error(check?.message||'Storage test failed.');const out=await Cloud.resetResponses();responses=[];renderDashboard();alert(`Dashboard reset completed. ${out?.deleted??0} stored responses deleted.`);}catch(e){alert('Reset failed: '+e.message);}}
-  function exportConfig(){download('HAJR_Safety_Climate_V10_4_Config.json',JSON.stringify(config,null,2));}
-  function exportJSON(){download('HAJR_Safety_Climate_V10_4_Results.json',JSON.stringify(responses,null,2));}
-  function exportCSV(){const rows=[['Timestamp','Campaign','Role','Division','Area','Language','Question ID','Factor','Rating','Normalised rating','Comment']];responses.forEach(r=>(r.answers||[]).forEach(a=>rows.push([r.timestamp,r.campaign||'Legacy / Previous',responseRole(r),r.division,r.area,r.language,a.qid,a.factor,a.value,value(a),a.comment||''])));download('HAJR_Safety_Climate_V10_4_Results.csv',rows.map(row=>row.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(',')).join('\n'),'text/csv');}
+  function exportConfig(){download('Safety_Climate_V10_9_Config.json',JSON.stringify(config,null,2));}
+  function exportJSON(){download('Safety_Climate_V10_9_Results.json',JSON.stringify(responses,null,2));}
+  function exportCSV(){const rows=[['Timestamp','Campaign','Role','Division','Area','Language','Question ID','Factor','Rating','Normalised rating','Comment']];responses.forEach(r=>(r.answers||[]).forEach(a=>rows.push([r.timestamp,r.campaign||'Legacy / Previous',responseRole(r),r.division,r.area,r.language,a.qid,a.factor,a.value,value(a),a.comment||''])));download('Safety_Climate_V10_9_Results.csv',rows.map(row=>row.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(',')).join('\n'),'text/csv');}
   async function changePin(){const p=$('newLocalPin').value.trim();if(p.length<4){alert('Use at least 4 characters.');return;}await Cloud.changeLocalPin(p);$('newLocalPin').value='';alert('Local preview PIN changed.');}
 
   window.addEventListener('beforeunload',e=>{if(changeSerial!==savedSerial){e.preventDefault();e.returnValue='';}});
@@ -262,4 +262,4 @@ window.Admin = (() => {
 
   return {login,tab,refreshResponses,setDashboardDivision,setDashboardFactor,setDashboardSearch,clearDashboardFilters,openQuestionModal,closeQuestionModal,modalBackdrop,renderSettings,setProjectCode,setProjectText,setTheme,setCampaignName,setCampaignStatus,renderCampaigns,createCampaign,updateCampaign,activateCampaign,closeCampaign,archiveCampaign,addLogo,replaceLogo,toggleLogo,deleteLogo,saveNow,renderQuestionBuilder,setQuestion,setQuestionText,addQuestion,moveQuestion,duplicateQuestion,deleteQuestion,addOpenQuestion,setOpen,deleteOpen,renderAudience,setLanguage,setRole,setRoleText,setDivisions,testStorage,resetResponses,exportConfig,exportJSON,exportCSV,changePin,getConfig:()=>config,getResponses:()=>responses,notifyDashboard};
 })();
-if(sessionStorage.getItem('hajr_admin_key')){document.getElementById('adminKey').value=sessionStorage.getItem('hajr_admin_key');Admin.login();}
+if(sessionStorage.getItem('safety_admin_key')){document.getElementById('adminKey').value=sessionStorage.getItem('safety_admin_key');Admin.login();}

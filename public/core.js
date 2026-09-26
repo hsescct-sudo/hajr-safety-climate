@@ -33,17 +33,29 @@ window.Core = (() => {
   };
   const cleanProjectName = (name, code) => {
     const safe=String(code||"").replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    return String(name||"").replace(new RegExp(`^\\s*${safe}\\s*[–—-]\\s*`),"").trim();
+    const value=String(name||"");
+    return safe ? value.replace(new RegExp(`^\\s*${safe}\\s*[–—-]\\s*`),"").trim() : value.trim();
+  };
+  const legacyProjectText = value => /H(?:AJR|AJAR|AGR)|\u0647\u062c\u0631/i.test(String(value||""));
+  const sanitizeProjectText = (value, fallback) => legacyProjectText(value) ? String(fallback||"") : String(value||fallback||"");
+  const sanitizeLegacyLogo = logo => {
+    const test=`${logo?.id||""} ${logo?.name||""} ${logo?.src||""}`;
+    return /H(?:AJR|AJAR|AGR)/i.test(test);
   };
   function migrateConfig(defaults, current){
     const d=clone(defaults), c=current && typeof current === "object" ? current : null;
-    if(!c){ d.version='10.8-final'; d.release='10.8-final'; d.schema='hajr-safety-climate-v10'; return d; }
+    if(!c){ d.version='10.9-final'; d.release='10.9-final'; d.schema='safety-climate-v10'; return d; }
 
     if(c.project){
-      d.project.code=c.project.code||d.project.code;
+      const incomingCode=String(c.project.code||"").trim();
+      d.project.code=incomingCode==='70330'?'':incomingCode;
       ['name','surveyName','subtitle'].forEach(k=>{
         d.project[k]=mergeText(d.project[k],c.project[k]);
-        if(k==='name') Object.keys(d.project[k]).forEach(l=>d.project[k][l]=cleanProjectName(d.project[k][l],d.project.code));
+        if(k==='name'){
+          Object.keys(d.project[k]).forEach(l=>{
+            d.project[k][l]=cleanProjectName(sanitizeProjectText(d.project[k][l],defaults.project?.name?.[l]||defaults.project?.name?.en),d.project.code);
+          });
+        }
       });
     }
     if(c.theme && typeof c.theme==='object') d.theme={...d.theme,...c.theme};
@@ -70,7 +82,7 @@ window.Core = (() => {
     d.campaigns.forEach(x=>x.isActive=x.id===active.id);
     d.campaign={...active};
     if(c.performanceThresholds && typeof c.performanceThresholds==='object') d.performanceThresholds={...d.performanceThresholds,...c.performanceThresholds};
-    if(Array.isArray(c.logos) && c.logos.length) d.logos=clone(c.logos);
+    if(Array.isArray(c.logos) && c.logos.length) d.logos=clone(c.logos).filter(x=>!sanitizeLegacyLogo(x));
     if(Array.isArray(c.divisions) && c.divisions.length) d.divisions=clone(c.divisions);
     if(Array.isArray(c.languages)){
       const map=Object.fromEntries(c.languages.map(x=>[x.code,x]));
@@ -81,16 +93,29 @@ window.Core = (() => {
       d.languages.push({code:'fil',name:'Tagalog / Filipino',native:'Filipino / Tagalog',enabled:true,dir:'ltr'});
     }
     const filLang=(d.languages||[]).find(x=>x.code==='fil');
-    if(filLang){filLang.name='Tagalog / Filipino';filLang.native='Filipino / Tagalog';filLang.enabled=filLang.enabled!==false;filLang.dir='ltr';}
+    if(filLang){filLang.name='Tagalog / Filipino';filLang.native='Filipino / Tagalog';filLang.enabled=true;filLang.dir='ltr';}
     if(c.factors && typeof c.factors==='object') Object.keys(d.factors).forEach(k=>d.factors[k]=mergeText(d.factors[k],c.factors[k]));
-    if(c.ui && typeof c.ui==='object') Object.keys(d.ui).forEach(l=>{d.ui[l]={...d.ui[l],...(c.ui[l]||{})};});
+    if(c.ui && typeof c.ui==='object') Object.keys(d.ui).forEach(l=>{
+      d.ui[l]={...d.ui[l],...(c.ui[l]||{})};
+      if(legacyProjectText(d.ui[l]?.project)) d.ui[l].project=defaults.ui?.[l]?.project||defaults.project?.name?.[l]||defaults.project?.name?.en||'';
+    });
     // Preserve edited open questions while adding translations introduced by newer releases.
     if(Array.isArray(c.openQuestions)){
       const defOpen=new Map((d.openQuestions||[]).map(q=>[q.id,q]));
       d.openQuestions=c.openQuestions.map(q=>{
         const def=defOpen.get(q.id)||{};
-        return {...def,...clone(q),...mergeText(def,q),id:q.id||def.id};
+        const merged={...def,...clone(q),...mergeText(def,q),id:q.id||def.id};
+        // Client final comment: old project-specific wording must never survive in any language.
+        if(merged.id==='open_02'||merged.id==='open_03'){
+          Object.keys(def).forEach(l=>{if(l!=='id' && (!merged[l]||legacyProjectText(merged[l]))) merged[l]=def[l];});
+        }
+        return merged;
       });
+      // Ensure standard open questions cannot disappear during migration from an older cloud config.
+      (d.openQuestions||[]).forEach(()=>{});
+      for(const [id,def] of defOpen){
+        if(!d.openQuestions.some(q=>q.id===id)) d.openQuestions.push(clone(def));
+      }
     }
 
     // Preserve role edits while enforcing the final four-questionnaire structure.
@@ -129,7 +154,7 @@ window.Core = (() => {
       d.questions=out;
     }
 
-    d.version='10.8-final'; d.release='10.8-final'; d.schema='hajr-safety-climate-v10';
+    d.version='10.9-final'; d.release='10.9-final'; d.schema='safety-climate-v10';
     return d;
   }
   const roleObject = (config,id) => (config.roles||[]).find(r=>r.id===canonicalRole(id));

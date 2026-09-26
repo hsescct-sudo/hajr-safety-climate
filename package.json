@@ -1,7 +1,7 @@
 {
-  "name": "hajr-safety-climate-final-clean",
+  "name": "safety-climate-final-clean",
   "private": true,
-  "version": "10.7.0",
+  "version": "10.9.0",
   "dependencies": {
     "@netlify/blobs": "^10.0.0"
   }

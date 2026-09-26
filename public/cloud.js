@@ -1,7 +1,7 @@
 window.Cloud = (() => {
   const API="/api/survey";
   let mode="unknown", lastError="";
-  const LOCAL_CONFIG="hajr_v9_config", LOCAL_RESP="hajr_v9_responses", LOCAL_PIN="hajr_v9_admin_pin";
+  const LOCAL_CONFIG="safety_v10_config", LOCAL_RESP="safety_v10_responses", LOCAL_PIN="safety_v10_admin_pin";
   function apiError(status, body){
     let message=body||`HTTP ${status}`;
     try{const j=JSON.parse(body);message=j.message||j.error||message;}catch(_){}
@@ -16,13 +16,13 @@ window.Cloud = (() => {
   }
   function localConfig(defaults){
     try{
-      const old=localStorage.getItem(LOCAL_CONFIG) || localStorage.getItem("hajr_v8_config") || localStorage.getItem("hajr_v7_config");
+      const old=localStorage.getItem(LOCAL_CONFIG);
       const x=JSON.parse(old||"null"),m=Core.migrateConfig(defaults,x);
       localStorage.setItem(LOCAL_CONFIG,JSON.stringify(m));return m;
     }catch(e){const d=Core.migrateConfig(defaults,null);localStorage.setItem(LOCAL_CONFIG,JSON.stringify(d));return d;}
   }
   function localResponses(){
-    try{return JSON.parse(localStorage.getItem(LOCAL_RESP)||localStorage.getItem("hajr_v8_responses")||localStorage.getItem("hajr_v7_responses")||"[]")}catch(e){return[]}
+    try{return JSON.parse(localStorage.getItem(LOCAL_RESP)||"[]")}catch(e){return[]}
   }
   const localAllowed=()=>location.protocol==='file:' || ['localhost','127.0.0.1'].includes(location.hostname);
   async function getConfig(defaults){
@@ -38,13 +38,13 @@ window.Cloud = (() => {
     return request("submit",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(record)});
   }
   async function login(key){
-    try{await request("login",{method:"POST",headers:{"x-admin-key":key}});mode="cloud";lastError="";sessionStorage.setItem("hajr_admin_key",key);return true;}
+    try{await request("login",{method:"POST",headers:{"x-admin-key":key}});mode="cloud";lastError="";sessionStorage.setItem("safety_admin_key",key);return true;}
     catch(e){
-      if((e.status===404 || localAllowed())){mode="local";const pin=localStorage.getItem(LOCAL_PIN)||"70330";if(key===pin){sessionStorage.setItem("hajr_admin_key",key);return true;}}
+      if((e.status===404 || localAllowed())){mode="local";const pin=localStorage.getItem(LOCAL_PIN)||"70330";if(key===pin){sessionStorage.setItem("safety_admin_key",key);return true;}}
       lastError=e.message;return false;
     }
   }
-  const key=()=>sessionStorage.getItem("hajr_admin_key")||"";
+  const key=()=>sessionStorage.getItem("safety_admin_key")||"";
   async function getResponses(){
     if(mode==="local") return localResponses();
     return (await request("responses",{headers:{"x-admin-key":key()}})).responses||[];
@@ -64,14 +64,14 @@ window.Cloud = (() => {
 
   async function getActionRecords(){
     if(mode==="local"){
-      try{return JSON.parse(localStorage.getItem("hajr_v10_actions")||"[]")}catch(e){return[]}
+      try{return JSON.parse(localStorage.getItem("safety_v10_actions")||"[]")}catch(e){return[]}
     }
     return (await request("action-records",{headers:{"x-admin-key":key()}})).records||[];
   }
   async function saveAction(record){
     if(mode==="local"){
       const arr=await getActionRecords(),i=arr.findIndex(x=>x.id===record.id),saved={...record,updatedAt:new Date().toISOString()};
-      if(i>=0)arr[i]=saved;else arr.push(saved);localStorage.setItem("hajr_v10_actions",JSON.stringify(arr));return {ok:true,record:saved};
+      if(i>=0)arr[i]=saved;else arr.push(saved);localStorage.setItem("safety_v10_actions",JSON.stringify(arr));return {ok:true,record:saved};
     }
     return request("save-action",{method:"POST",headers:{"content-type":"application/json","x-admin-key":key()},body:JSON.stringify(record)});
   }

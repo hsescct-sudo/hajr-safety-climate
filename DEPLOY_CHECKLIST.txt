@@ -1,23 +1,19 @@
-HAJR V10.8 FINAL CLEAN — GO-LIVE CHECK
+SAFETY CLIMATE V10.9 FINAL CLEAN — GO-LIVE CHECK
 
-[ ] GitHub commit contains only the new V10.8 files
+[ ] GitHub root contains public / netlify / netlify.toml / package.json
 [ ] Netlify deploy = Published
-[ ] Admin header = V10.8 FINAL CLEAN
-[ ] Data & Reset > Test central storage = passed
-[ ] Save now = Saved & verified
-[ ] Public language page = 11 languages
-[ ] Filipino / Tagalog card is visible
-[ ] Filipino voice-to-text locale = fil-PH
-[ ] Dashboard period = 7 / 14 / 21 / 30 days
-[ ] Campaign comparison respects the same Period filter
-[ ] Sentiment Mix shows % inside Green / Amber / Red segments
-[ ] Report Center has Campaign selector
-[ ] Report Center has Division selector
-[ ] Report Center has 3 report types
-[ ] Report 1 Word + Excel works
-[ ] Report 2 Word + Excel works
-[ ] Report 3 Word + Excel works
-[ ] Open Question Summary is present in reports
-[ ] QR Poster button opens poster.html
-[ ] A3 PDF poster opens and QR scans to the public survey
-[ ] Existing Actions / Evidence / Close-out still work
+[ ] /admin.html header = V10.9 FINAL CLEAN
+[ ] Central storage test = passed
+[ ] Public page has no legacy project-specific wording
+[ ] Removed project-specific logo is not displayed
+[ ] Filipino / Tagalog appears as language 11
+[ ] Open Q2 is generic in all 11 languages
+[ ] Open Q3 is generic in all 11 languages
+[ ] Report headings use the CURRENT Admin wording
+[ ] All 3 open questions appear in grouped appendix
+[ ] Consolidated Open-Question Response Register appears
+[ ] Report Center supports Campaign + Division + 3 report types + Word/Excel
+[ ] Period options = All / 7 / 14 / 21 / 30 days
+[ ] QR Poster opens and shows six-step sequence
+[ ] Demo video opens from Admin and poster
+[ ] Existing campaign/history/action data still loads

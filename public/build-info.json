@@ -1,6 +1,6 @@
 {
-  "build": "V10.8 FINAL CLEAN",
-  "version": "10.8-final",
+  "build": "V10.9 FINAL CLEAN",
+  "version": "10.9-final",
   "date": "2026-09-26",
   "architecture": "single public publish directory + Netlify function",
   "roles": [
@@ -11,12 +11,12 @@
   ],
   "features": [
     "Power BI-style interactive dashboard",
-    "Clean HSE threshold bars: Green ≥75%, Amber 60–74.9%, Red <60%",
+    "Clean HSE threshold bars: Green \u226575%, Amber 60\u201374.9%, Red <60%",
     "Fully interactive Campaign Comparison dashboard",
     "Campaign management: create / activate / close / archive",
     "Report Center with campaign selection, report type selection and output format selection",
     "Management Executive Report retained in Word and Excel formats",
-    "New Detailed Safety Climate Report in Word and Excel formats",
+    "Detailed Safety Climate Report in Word and Excel formats",
     "Detailed report: executive summary, 8-factor overview and dedicated factor sections",
     "Detailed report: question sentiment, strengths, concerns, role/division analysis, comments and recommendations",
     "Management Action Plan and Close-out Register included in both report families",
@@ -32,9 +32,15 @@
     "Sentiment bars display favourable / neutral / unfavourable percentages inside the colour segments",
     "QR Poster available from Admin with printable HTML and A3 PDF",
     "Forced migration adds Filipino / Tagalog to older 10-language cloud configurations",
-    "Netlify function version aligned to V10.8 for verified configuration saves"
+    "Netlify function version aligned to V10.9 for verified configuration saves",
+    "Generic platform wording: no legacy project name in public pages or generated reports",
+    "Open Question 2 and 3 generic wording synchronised across all 11 languages",
+    "Reports always use current Admin open-question wording for historical and new responses",
+    "Consolidated Open-Question Response Register added to all three report families",
+    "Short survey demo video available from Admin and QR poster",
+    "Project-specific logo removed from the default visible branding"
   ],
-  "note": "No contractor/company field or contractor analytics. Detailed reporting uses HAJR project thresholds for internal interpretation and does not claim an external industry benchmark.",
-  "label": "V10.8 FINAL CLEAN",
-  "release": "V10.8 FINAL CLEAN"
+  "note": "Generic multilingual Safety Climate Survey platform. No project-specific name is hard-coded in the public survey or reports. Detailed reporting uses internal management thresholds and does not claim an external industry benchmark.",
+  "label": "V10.9 FINAL CLEAN",
+  "release": "10.9-final"
 }
