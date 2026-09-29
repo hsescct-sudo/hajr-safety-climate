@@ -1,4 +1,4 @@
-# Safety Climate Survey Platform — V10.9 FINAL CLEAN
+# Safety Climate Survey Platform — V10.10 FINAL CLEAN
 
 This release implements the final client comments on top of V10.8 while preserving the existing cloud response/configuration stores.
 
@@ -36,9 +36,19 @@ Keep the existing Netlify `ADMIN_KEY`. Existing Netlify Blob store names are int
 
 After deployment:
 1. Wait for Netlify **Published**.
-2. Open `/admin.html` and confirm **V10.9 FINAL CLEAN**.
+2. Open `/admin.html` and confirm **V10.10 FINAL CLEAN**.
 3. Run **Data & Reset → Test central storage**.
 4. Open **Questionnaire Builder** and confirm Open Q2/Q3 are generic in all languages.
 5. Generate a report and confirm the same current wording appears in the report.
-6. Confirm no legacy project-specific wording or removed project logo appears in public/admin/reports.
+6. Confirm no legacy project-specific wording appears in the public survey or reports, and confirm the QR poster/demo contain no company logos.
 7. Open **QR Poster** and **Survey Demo Video**.
+
+
+## V10.10 Client Update
+- End-to-end multilingual public survey journey across all 11 languages.
+- Division display labels can be translated per language while stored division values remain stable for analytics.
+- Percentages are shown on all tri-colour sentiment stacks.
+- QR poster and demo visuals are generic and contain no company logos.
+- Optional online raffle module after survey submission. Badge/ID data is stored separately from anonymous survey answers.
+- One badge = one raffle entry; strict one-entry-per-device control by default (can be disabled in Admin for shared devices).
+- Admin Prize Draw tab includes participant register, CSV export and random winner draw.

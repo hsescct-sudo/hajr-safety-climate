@@ -1,12 +1,15 @@
-SAFETY CLIMATE V10.9 FINAL CLEAN — GO-LIVE CHECK
+SAFETY CLIMATE V10.10 FINAL CLEAN — GO-LIVE CHECK
 
 [ ] GitHub root contains public / netlify / netlify.toml / package.json
 [ ] Netlify deploy = Published
-[ ] /admin.html header = V10.9 FINAL CLEAN
+[ ] /admin.html header = V10.10 FINAL CLEAN
 [ ] Central storage test = passed
 [ ] Public page has no legacy project-specific wording
-[ ] Removed project-specific logo is not displayed
 [ ] Filipino / Tagalog appears as language 11
+[ ] Choose Filipino and confirm Role / Division / Buttons / Questions stay Filipino
+[ ] Choose Arabic or Urdu and confirm RTL layout remains readable
+[ ] Division display labels follow the selected language (or configured translation)
+[ ] Tri-colour sentiment charts show percentage values inside each colour segment
 [ ] Open Q2 is generic in all 11 languages
 [ ] Open Q3 is generic in all 11 languages
 [ ] Report headings use the CURRENT Admin wording
@@ -14,6 +17,10 @@ SAFETY CLIMATE V10.9 FINAL CLEAN — GO-LIVE CHECK
 [ ] Consolidated Open-Question Response Register appears
 [ ] Report Center supports Campaign + Division + 3 report types + Word/Excel
 [ ] Period options = All / 7 / 14 / 21 / 30 days
-[ ] QR Poster opens and shows six-step sequence
-[ ] Demo video opens from Admin and poster
+[ ] QR Poster opens with NO company logos and shows the survey sequence
+[ ] Demo video opens and contains NO company logos
+[ ] Submit one test survey and confirm Prize Draw appears after success
+[ ] Register one Badge / ID and confirm duplicate Badge / ID is rejected
+[ ] With strict-device option enabled, confirm a second raffle entry from the same browser/device is rejected
+[ ] Admin > Prize Draw shows participants, CSV export and Random Winner
 [ ] Existing campaign/history/action data still loads

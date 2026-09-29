@@ -44,7 +44,7 @@ window.Core = (() => {
   };
   function migrateConfig(defaults, current){
     const d=clone(defaults), c=current && typeof current === "object" ? current : null;
-    if(!c){ d.version='10.9-final'; d.release='10.9-final'; d.schema='safety-climate-v10'; return d; }
+    if(!c){ d.version='10.10-final'; d.release='10.10-final'; d.schema='safety-climate-v10'; return d; }
 
     if(c.project){
       const incomingCode=String(c.project.code||"").trim();
@@ -84,6 +84,13 @@ window.Core = (() => {
     if(c.performanceThresholds && typeof c.performanceThresholds==='object') d.performanceThresholds={...d.performanceThresholds,...c.performanceThresholds};
     if(Array.isArray(c.logos) && c.logos.length) d.logos=clone(c.logos).filter(x=>!sanitizeLegacyLogo(x));
     if(Array.isArray(c.divisions) && c.divisions.length) d.divisions=clone(c.divisions);
+    // V10.10 multilingual division display labels. Stored response values remain the base division names.
+    if(c.divisionTranslations && typeof c.divisionTranslations==='object'){
+      d.divisionTranslations={...d.divisionTranslations};
+      Object.entries(c.divisionTranslations).forEach(([name,labels])=>{d.divisionTranslations[name]=mergeText(d.divisionTranslations[name]||{en:name},labels);});
+    }
+    (d.divisions||[]).forEach(name=>{d.divisionTranslations??={};d.divisionTranslations[name]=mergeText(d.divisionTranslations[name]||{en:name},c.divisionTranslations?.[name]);d.divisionTranslations[name].en=name;});
+    if(c.raffle && typeof c.raffle==='object') d.raffle={...d.raffle,...c.raffle};
     if(Array.isArray(c.languages)){
       const map=Object.fromEntries(c.languages.map(x=>[x.code,x]));
       d.languages=d.languages.map(x=>({...x,...(map[x.code]||{})}));
@@ -99,6 +106,9 @@ window.Core = (() => {
       d.ui[l]={...d.ui[l],...(c.ui[l]||{})};
       if(legacyProjectText(d.ui[l]?.project)) d.ui[l].project=defaults.ui?.[l]?.project||defaults.project?.name?.[l]||defaults.project?.name?.en||'';
     });
+    // V10.10: repair older cloud configs where non-English public labels were accidentally saved in English.
+    const journeyKeys=['language','home','start','selectRole','roleSub','step1','where','privacy','role','division','selectDivision','area','back','begin','step2','questions','cancel','submit','sd','d','n','a','sa','open','type','required','thanks','thanksSub','return','comment','addComment','commentPlaceholder','strongComment','continue','chooseLanguage','chooseLanguageSub','voiceInput','listening','speechUnsupported','speechDenied','questionnaires','languages','factors','anonymous','voicePrivacy','optional','activeCampaign','campaign','noActiveCampaign','surveyClosed','noQuestions','raffleTitle','raffleIntro','raffleBadge','raffleName','raffleEnter','raffleSkip','rafflePrivacy','raffleSuccess','raffleDuplicate','raffleDeviceDuplicate','raffleRequired','raffleUnavailable','submitError'];
+    Object.keys(d.ui||{}).forEach(l=>{if(l==='en')return;journeyKeys.forEach(k=>{const cur=d.ui?.[l]?.[k],eng=d.ui?.en?.[k],def=defaults.ui?.[l]?.[k];if(def && (!cur || cur===eng || cur===defaults.ui?.en?.[k]))d.ui[l][k]=def;});});
     // Preserve edited open questions while adding translations introduced by newer releases.
     if(Array.isArray(c.openQuestions)){
       const defOpen=new Map((d.openQuestions||[]).map(q=>[q.id,q]));
@@ -107,7 +117,7 @@ window.Core = (() => {
         const merged={...def,...clone(q),...mergeText(def,q),id:q.id||def.id};
         // Client final comment: old project-specific wording must never survive in any language.
         if(merged.id==='open_02'||merged.id==='open_03'){
-          Object.keys(def).forEach(l=>{if(l!=='id' && (!merged[l]||legacyProjectText(merged[l]))) merged[l]=def[l];});
+          Object.keys(def).forEach(l=>{if(l!=='id' && (!merged[l]||legacyProjectText(merged[l])||(l!=='en'&&merged[l]===merged.en&&def[l]))) merged[l]=def[l];});
         }
         return merged;
       });
@@ -127,13 +137,9 @@ window.Core = (() => {
       if(!cur) return def;
       // When migrating from the old separate roles, keep the new merged label by design.
       const migratingMerged = def.id===MERGED_ROLE && cur.id!==MERGED_ROLE;
-      return {
-        ...def,
-        icon:cur.icon||def.icon,
-        enabled:cur.enabled!==false,
-        text:migratingMerged?def.text:mergeText(def.text,cur.text),
-        description:mergeText(def.description,cur.description)
-      };
+      const out={...def,icon:cur.icon||def.icon,enabled:cur.enabled!==false,text:migratingMerged?def.text:mergeText(def.text,cur.text),description:mergeText(def.description,cur.description)};
+      ['text','description'].forEach(field=>Object.keys(def[field]||{}).forEach(l=>{if(l!=='en'&&out[field]?.[l]===out[field]?.en&&def[field]?.[l])out[field][l]=def[field][l];}));
+      return out;
     });
 
     // Preserve questionnaire edits while merging in any new language translations.
@@ -148,13 +154,13 @@ window.Core = (() => {
         out[r.id]=curList.map(q=>{
           const def=defById.get(q.id);
           if(!def) return q;
-          return {...def,...q,text:mergeText(def.text,q.text)};
+          const out={...def,...q,text:mergeText(def.text,q.text)};Object.keys(def.text||{}).forEach(l=>{if(l!=='en'&&out.text?.[l]===out.text?.en&&def.text?.[l])out.text[l]=def.text[l];});return out;
         });
       });
       d.questions=out;
     }
 
-    d.version='10.9-final'; d.release='10.9-final'; d.schema='safety-climate-v10';
+    d.version='10.10-final'; d.release='10.10-final'; d.schema='safety-climate-v10';
     return d;
   }
   const roleObject = (config,id) => (config.roles||[]).find(r=>r.id===canonicalRole(id));

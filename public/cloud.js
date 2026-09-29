@@ -1,11 +1,11 @@
 window.Cloud = (() => {
   const API="/api/survey";
   let mode="unknown", lastError="";
-  const LOCAL_CONFIG="safety_v10_config", LOCAL_RESP="safety_v10_responses", LOCAL_PIN="safety_v10_admin_pin";
+  const LOCAL_CONFIG="safety_v10_config", LOCAL_RESP="safety_v10_responses", LOCAL_PIN="safety_v10_admin_pin", LOCAL_RAFFLE="safety_v10_raffle";
   function apiError(status, body){
-    let message=body||`HTTP ${status}`;
-    try{const j=JSON.parse(body);message=j.message||j.error||message;}catch(_){}
-    const e=new Error(message);e.status=status;e.raw=body;return e;
+    let message=body||`HTTP ${status}`,payload=null;
+    try{payload=JSON.parse(body);message=payload.message||payload.error||message;}catch(_){}
+    const e=new Error(message);e.status=status;e.raw=body;e.payload=payload;return e;
   }
   async function request(action, opts={}){
     const r=await fetch(`${API}?action=${encodeURIComponent(action)}`,opts);
@@ -90,7 +90,13 @@ window.Cloud = (() => {
     return request("delete-action-evidence",{method:"DELETE",headers:{"content-type":"application/json","x-admin-key":key()},body:JSON.stringify({actionId,fileId:fileMeta.id})});
   }
 
+  async function submitRaffle(record){
+    if(mode==='local'){const arr=JSON.parse(localStorage.getItem(LOCAL_RAFFLE)||'[]'),badge=String(record.badge||'').trim().toUpperCase();if(arr.some(x=>String(x.badge||'').toUpperCase()===badge)){const e=new Error('Duplicate badge');e.status=409;e.payload={code:'DUPLICATE_BADGE'};throw e;}arr.push({...record,badge,enteredAt:new Date().toISOString()});localStorage.setItem(LOCAL_RAFFLE,JSON.stringify(arr));return {ok:true};}
+    return request('raffle-submit',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(record)});
+  }
+  async function getRaffleEntries(){if(mode==='local')return {entries:JSON.parse(localStorage.getItem(LOCAL_RAFFLE)||'[]'),draws:[]};return request('raffle-entries',{headers:{'x-admin-key':key()}});}
+  async function drawRaffleWinner(){if(mode==='local'){const arr=JSON.parse(localStorage.getItem(LOCAL_RAFFLE)||'[]');if(!arr.length)throw new Error('No raffle entries');return {ok:true,winner:arr[Math.floor(Math.random()*arr.length)],drawnAt:new Date().toISOString()};}return request('raffle-draw',{method:'POST',headers:{'x-admin-key':key()}});}
   async function health(){try{return await request("health");}catch(e){return {ok:false,error:e.message};}}
   async function changeLocalPin(pin){if(mode==="local")localStorage.setItem(LOCAL_PIN,pin);}
-  return {getConfig,submitResponse,login,getResponses,saveConfig,resetResponses,storageCheck,getActionRecords,saveAction,uploadActionEvidence,getActionEvidence,deleteActionEvidence,health,changeLocalPin,get mode(){return mode;},get lastError(){return lastError;}};
+  return {getConfig,submitResponse,submitRaffle,login,getResponses,saveConfig,resetResponses,storageCheck,getActionRecords,saveAction,uploadActionEvidence,getActionEvidence,deleteActionEvidence,getRaffleEntries,drawRaffleWinner,health,changeLocalPin,get mode(){return mode;},get lastError(){return lastError;}};
 })();
