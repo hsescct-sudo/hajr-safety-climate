@@ -1,25 +1,17 @@
-# Safety Climate Survey Platform — V10.12 FINAL CLEAN
+# Safety Climate Survey Platform — V10.13 FINAL CLEAN
 
-V10.12 applies the latest client comments on top of V10.10 without removing existing campaigns, dashboards, reports, actions, raffle data or multilingual content.
+V10.13 applies the latest reporting and dashboard comments on top of V10.12 while preserving campaigns, responses, actions, raffle data, multilingual content and single-device controls.
 
-## V10.12 report front-page + PowerPoint fix
+## V10.13 changes completed
 
-- All Word report families now open with a full Executive Dashboard as page 1.
-- The dashboard front page includes KPIs, overall tri-colour sentiment, 8 factors, role performance and division performance.
-- Executive Summary follows on page 2 instead of preceding the dashboard.
-- PowerPoint now uses the official browser bundle build and a lazy-load fallback.
-- PowerPoint slide 1 is the Executive Dashboard; slide 2 is the Executive Summary Brief.
-- PowerPoint save has a Blob-download fallback if direct `writeFile()` is blocked by the browser.
-
-## V10.12 client comments completed
-
-- **Executive Dashboard in reports:** Word reports now place an Executive Dashboard Overview immediately after the Executive Summary brief.
-- **PowerPoint output:** Report Center now supports Word, Excel and PowerPoint for all three report types. The PPTX is generated locally in the browser using the bundled PowerPoint library.
-- **Listen to every question:** Every rating question and every open question has a speaker button. It reads the currently displayed translated question using the selected language (Arabic, English, Urdu, Hindi, Nepali, Bangla, Telugu, Tamil, Malayalam, Chinese or Filipino/Tagalog).
-- **Strict single-device survey control:** One survey response per browser/device per campaign is enabled by default. The server stores only a separate one-way device lock; it does not add the device identifier to the anonymous survey response.
-- **Raffle strict-device control remains enabled:** One badge = one raffle entry and strict one raffle entry per browser/device remains on by default.
-- **Reset Results clears survey device locks:** this allows controlled retesting after an Admin reset.
-- Existing tri-colour percentage labels, division/campaign reports, generic wording, 11-language journey, open-question consolidation, QR poster/demo and action close-out remain unchanged.
+- **Online 8 Safety Climate Factors is now tri-colour:** every factor is a 100% stacked bar showing **Favourable / Neutral / Unfavourable** with the percentage inside each colour segment.
+- **Report factor summary now matches the dashboard:** Word, Excel and PowerPoint show the same three-colour response distribution for all 8 factors.
+- **Executive Summary is first:** Word reports open with a concise Executive Summary brief, followed immediately by the full Executive Dashboard.
+- **Full report dashboard:** KPIs, Overall Safety Climate donut, Favourable by Role, tri-colour factor summary and Division Performance are shown together.
+- **Donut restored in reports:** the Overall Safety Climate donut is embedded in the Word dashboard and the PowerPoint Executive Dashboard.
+- **PowerPoint sequence corrected:** Slide 1 = Executive Summary Brief, Slide 2 = Executive Dashboard, Slide 3 = Summary of Overall Responses by Factor.
+- **PowerPoint reliability hardened:** bundled PptxGenJS is reloaded on demand if needed, with a load timeout plus Blob-download fallback if direct `writeFile()` is blocked.
+- Existing **listen-to-question**, 11-language journey, strict single-device survey control, raffle control, open-question consolidation, campaign/division filters and action close-out remain enabled.
 
 ## Report Center
 
@@ -34,13 +26,13 @@ Choose:
 Upload the **contents** of this folder to the existing GitHub repository so `public`, `netlify`, `netlify.toml` and `package.json` remain at repository root. Keep the existing Netlify `ADMIN_KEY`.
 
 After Netlify shows **Published**:
-1. Open `/admin.html` and confirm **V10.12 FINAL CLEAN**.
-2. Data & Reset → confirm **Enforce one survey response per browser/device per campaign** is checked.
-3. Run **Test central storage**.
-4. Public survey → select Filipino (then Arabic) → open a questionnaire → press the **speaker icon** on a question and confirm the translated wording is read aloud.
-5. Submit one test response. Attempt a second response from the same browser/device in the same campaign and confirm it is blocked.
-6. Report Center → generate Word and confirm the Executive Dashboard appears immediately after the Executive Summary brief.
-7. Report Center → generate a PowerPoint and open the PPTX.
+1. Open `/admin.html` and confirm **V10.13 FINAL CLEAN**.
+2. Confirm the **8 Safety Climate Factors** chart shows green / amber / red stacked percentages.
+3. Data & Reset → confirm **Enforce one survey response per browser/device per campaign** is checked.
+4. Run **Test central storage**.
+5. Generate a Word report: Executive Summary should be first, then the full dashboard with the donut and tri-colour factor chart.
+6. Generate a PowerPoint: Executive Summary should be slide 1, Dashboard slide 2, tri-colour factor summary slide 3.
+7. Public survey → test one translated language and the speaker icon, then verify a second response from the same device/campaign is blocked.
 
 ### Shared-device note
 Strict single-device mode intentionally blocks a second survey response from the same browser/device during the same campaign. If a project uses shared kiosks/tablets for many workers, the Admin can disable this control.

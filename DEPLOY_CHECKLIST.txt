@@ -1,19 +1,19 @@
-SAFETY CLIMATE V10.12 FINAL CLEAN — GO-LIVE CHECK
+SAFETY CLIMATE V10.13 FINAL CLEAN — GO-LIVE CHECK
 
-[ ] GitHub root contains public / netlify / netlify.toml / package.json
-[ ] Netlify deploy = Published
-[ ] /admin.html shows V10.12 FINAL CLEAN
-[ ] Data & Reset > Test central storage = passed
-[ ] Survey Access Control > one response per browser/device = enabled
-[ ] Filipino question screen remains Filipino after Role + Division selection
-[ ] Arabic / Urdu display RTL correctly
-[ ] Speaker icon appears on every rating and open question
-[ ] Speaker reads the currently displayed translated question
-[ ] First survey submission succeeds
-[ ] Second submission from the same browser/device + campaign is blocked
-[ ] Dashboard sentiment percentages remain visible inside tri-colour bars
-[ ] Report Center has Campaign + Division + 3 report types
-[ ] Output formats = Word + Excel + PowerPoint
-[ ] Word report has Executive Dashboard Overview immediately after Executive Summary
-[ ] PowerPoint opens and contains Executive Summary + Executive Dashboard Overview
-[ ] Raffle remains separate from anonymous survey response data
+[ ] Upload repository contents with public/ at publish root
+[ ] Netlify deploy shows Published
+[ ] /admin.html shows V10.13 FINAL CLEAN
+[ ] 8 Safety Climate Factors displays 100% stacked Favourable / Neutral / Unfavourable bars
+[ ] Percentages appear inside the three colour segments
+[ ] Dashboard filters and factor click cross-filter still work
+[ ] Report Center: Word opens with Executive Summary first
+[ ] Word page 2 shows full Executive Dashboard with Overall Safety Climate donut
+[ ] Word dashboard factor chart is tri-colour and matches the online dashboard
+[ ] Excel factor summary contains Favourable / Neutral / Unfavourable distribution
+[ ] PowerPoint generates and opens successfully
+[ ] PowerPoint slide 1 = Executive Summary Brief
+[ ] PowerPoint slide 2 = Executive Dashboard with donut
+[ ] PowerPoint slide 3 = Summary of Overall Responses by Factor with tri-colour bars
+[ ] Public survey speaker icon reads the selected language
+[ ] One response per browser/device per campaign is enabled and blocks a duplicate test
+[ ] Central storage test passes
