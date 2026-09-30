@@ -15,18 +15,32 @@ const actionFileStore=()=>getStore("hajr-safety-action-files");
 const raffleStore=()=>getStore("safety-climate-raffle");
 const raffleDeviceStore=()=>getStore("safety-climate-raffle-devices");
 const raffleDrawStore=()=>getStore("safety-climate-raffle-draws");
+const surveyDeviceStore=()=>getStore("safety-climate-survey-devices");
 const hashText=async text=>{const bytes=new TextEncoder().encode(String(text||""));const dig=await crypto.subtle.digest("SHA-256",bytes);return [...new Uint8Array(dig)].map(b=>b.toString(16).padStart(2,"0")).join("");};
 
 export default async (req, context) => {
   const url=new URL(req.url),action=url.searchParams.get("action")||"";
   try{
     if(action==="health"&&req.method==="GET"){
-      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.10-final"});
+      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.11-final"});
     }
 
     if(action==="config"&&req.method==="GET"){
       const config=await configStore().get("main",{type:"json",consistency:"strong"});
       return json({config:config||null});
+    }
+
+    if(action==="survey-device-check"&&req.method==="POST"){
+      const body=await req.json();
+      const cfg=await configStore().get("main",{type:"json",consistency:"strong"});
+      if(cfg?.surveyControls?.oneResponsePerDevice===false)return json({ok:true,available:true,enforced:false});
+      const active=(cfg?.campaigns||[]).find(c=>c?.isActive)||cfg?.campaign||null;
+      const campaignKey=String(active?.id||body?.campaignId||active?.name||body?.campaign||'default');
+      const deviceId=String(body?.deviceId||'').trim();
+      if(!deviceId)return json({ok:true,available:true,enforced:true});
+      const deviceHash=await hashText(`${campaignKey}::${deviceId}`);
+      const existing=await surveyDeviceStore().get(`device_${deviceHash}`,{type:"json",consistency:"strong"});
+      return json({ok:true,available:!existing,enforced:true});
     }
 
     if(action==="submit"&&req.method==="POST"){
@@ -36,8 +50,13 @@ export default async (req, context) => {
       const active=(cfg?.campaigns||[]).find(c=>c?.isActive)||cfg?.campaign||null;
       if(active&&String(active.status||"Open")!=="Open")return json({error:"Campaign closed",message:"The active survey campaign is not accepting responses."},409);
       if(active){r.campaign=String(active.name||r.campaign||"Safety Climate Survey");r.campaignId=String(active.id||r.campaignId||"");}
+      const campaignKey=String(active?.id||r.campaignId||active?.name||r.campaign||'default');
+      const deviceId=String(r.deviceId||'').trim();delete r.deviceId;
+      let deviceKey='';
+      if(cfg?.surveyControls?.oneResponsePerDevice!==false&&deviceId){const deviceHash=await hashText(`${campaignKey}::${deviceId}`);deviceKey=`device_${deviceHash}`;const existing=await surveyDeviceStore().get(deviceKey,{type:"json",consistency:"strong"});if(existing)return json({error:"Duplicate survey device",message:"This browser/device has already submitted a response for the current campaign.",code:"DUPLICATE_SURVEY_DEVICE"},409);}
       const id=r.id||crypto.randomUUID();r.id=id;r.receivedAt=new Date().toISOString();r.schemaVersion=Number(r.schemaVersion||10);
       await responseStore().setJSON(`${Date.now()}_${id}`,r);
+      if(deviceKey)await surveyDeviceStore().setJSON(deviceKey,{campaignId:r.campaignId||'',campaign:r.campaign||'',submittedAt:r.receivedAt});
       return json({ok:true,id,savedAt:r.receivedAt,campaign:r.campaign,campaignId:r.campaignId||null});
     }
 
@@ -142,12 +161,12 @@ export default async (req, context) => {
 
     if(action==="storage-check"&&req.method==="POST"){
       const key=`__health_${Date.now()}_${crypto.randomUUID()}`;
-      const c=configStore(),a=actionStore(),f=actionFileStore(),r=raffleStore();
-      await c.set(key,"ok");await a.setJSON(key,{ok:true});await f.setJSON(key,{ok:true});await r.setJSON(key,{ok:true});
-      const [cv,av,fv,rv]=await Promise.all([c.get(key,{consistency:"strong"}),a.get(key,{type:"json",consistency:"strong"}),f.get(key,{type:"json",consistency:"strong"}),r.get(key,{type:"json",consistency:"strong"})]);
-      await Promise.all([c.delete(key),a.delete(key),f.delete(key),r.delete(key)]);
-      const ok=cv==="ok"&&av?.ok===true&&fv?.ok===true&&rv?.ok===true;
-      return json({ok,message:ok?"Central storage read/write/delete test passed for configuration, actions, evidence and raffle data.":"Storage verification failed."});
+      const c=configStore(),a=actionStore(),f=actionFileStore(),r=raffleStore(),sd=surveyDeviceStore();
+      await c.set(key,"ok");await a.setJSON(key,{ok:true});await f.setJSON(key,{ok:true});await r.setJSON(key,{ok:true});await sd.setJSON(key,{ok:true});
+      const [cv,av,fv,rv,sv]=await Promise.all([c.get(key,{consistency:"strong"}),a.get(key,{type:"json",consistency:"strong"}),f.get(key,{type:"json",consistency:"strong"}),r.get(key,{type:"json",consistency:"strong"}),sd.get(key,{type:"json",consistency:"strong"})]);
+      await Promise.all([c.delete(key),a.delete(key),f.delete(key),r.delete(key),sd.delete(key)]);
+      const ok=cv==="ok"&&av?.ok===true&&fv?.ok===true&&rv?.ok===true&&sv?.ok===true;
+      return json({ok,message:ok?"Central storage read/write/delete test passed for configuration, actions, evidence, raffle data and survey device controls.":"Storage verification failed."});
     }
 
     if(action==="save-config"&&req.method==="POST"){
@@ -156,7 +175,7 @@ export default async (req, context) => {
       // Store a clean copy and then read the exact object back with strong
       // consistency. Returning that raw stored object lets the admin verify the
       // save without comparing against a migrated/default-normalized config.
-      const stored={...incoming,version:"10.10-final",schema:"safety-climate-v10",updatedAt:new Date().toISOString()};
+      const stored={...incoming,version:"10.11-final",schema:"safety-climate-v10",updatedAt:new Date().toISOString()};
       const store=configStore();
       await store.setJSON("main",stored);
       const verified=await store.get("main",{type:"json",consistency:"strong"});
@@ -168,7 +187,9 @@ export default async (req, context) => {
       const store=responseStore(),listed=await store.list();
       let deleted=0;
       for(const item of listed.blobs){await store.delete(item.key);deleted++;}
-      return json({ok:true,deleted,savedAt:new Date().toISOString()});
+      const deviceStore=surveyDeviceStore(),deviceList=await deviceStore.list();
+      let deviceLocksDeleted=0;for(const item of deviceList.blobs){await deviceStore.delete(item.key);deviceLocksDeleted++;}
+      return json({ok:true,deleted,deviceLocksDeleted,savedAt:new Date().toISOString()});
     }
 
     return json({error:"Not found"},404);

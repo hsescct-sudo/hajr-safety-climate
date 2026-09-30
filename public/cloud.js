@@ -1,7 +1,7 @@
 window.Cloud = (() => {
   const API="/api/survey";
   let mode="unknown", lastError="";
-  const LOCAL_CONFIG="safety_v10_config", LOCAL_RESP="safety_v10_responses", LOCAL_PIN="safety_v10_admin_pin", LOCAL_RAFFLE="safety_v10_raffle";
+  const LOCAL_CONFIG="safety_v10_config", LOCAL_RESP="safety_v10_responses", LOCAL_PIN="safety_v10_admin_pin", LOCAL_RAFFLE="safety_v10_raffle", LOCAL_SURVEY_DEVICES="safety_v10_survey_devices";
   function apiError(status, body){
     let message=body||`HTTP ${status}`,payload=null;
     try{payload=JSON.parse(body);message=payload.message||payload.error||message;}catch(_){}
@@ -32,8 +32,15 @@ window.Cloud = (() => {
       mode="cloud-error";console.error('Cloud config error',e);return Core.migrateConfig(defaults,null);
     }
   }
+  function localSurveyKey(record){return `${record?.campaignId||record?.campaign||'default'}::${record?.deviceId||''}`;}
+  async function checkSurveyDevice(record){
+    if(!record?.deviceId)return {ok:true,available:true};
+    if(mode==="local"){let used=[];try{used=JSON.parse(localStorage.getItem(LOCAL_SURVEY_DEVICES)||"[]")}catch(_){}return {ok:true,available:!used.includes(localSurveyKey(record))};}
+    if(mode==="cloud-error")throw new Error(lastError||"Cloud storage is unavailable.");
+    return request("survey-device-check",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(record)});
+  }
   async function submitResponse(record){
-    if(mode==="local"){const arr=localResponses();arr.push(record);localStorage.setItem(LOCAL_RESP,JSON.stringify(arr));return {ok:true,mode:"local"};}
+    if(mode==="local"){let used=[];try{used=JSON.parse(localStorage.getItem(LOCAL_SURVEY_DEVICES)||"[]")}catch(_){}const k=localSurveyKey(record);if(record?.deviceId&&used.includes(k)){const e=new Error('Duplicate survey device');e.status=409;e.payload={code:'DUPLICATE_SURVEY_DEVICE'};throw e;}const arr=localResponses(),clean={...record};delete clean.deviceId;arr.push(clean);localStorage.setItem(LOCAL_RESP,JSON.stringify(arr));if(record?.deviceId){used.push(k);localStorage.setItem(LOCAL_SURVEY_DEVICES,JSON.stringify([...new Set(used)]));}return {ok:true,mode:"local"};}
     if(mode==="cloud-error") throw new Error(lastError||"Cloud storage is unavailable.");
     return request("submit",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(record)});
   }
@@ -54,7 +61,7 @@ window.Cloud = (() => {
     return request("save-config",{method:"POST",headers:{"content-type":"application/json","x-admin-key":key()},body:JSON.stringify(config)});
   }
   async function resetResponses(){
-    if(mode==="local"){localStorage.removeItem(LOCAL_RESP);return {ok:true,mode:"local",deleted:0};}
+    if(mode==="local"){localStorage.removeItem(LOCAL_RESP);localStorage.removeItem(LOCAL_SURVEY_DEVICES);return {ok:true,mode:"local",deleted:0};}
     return request("reset-responses",{method:"POST",headers:{"x-admin-key":key()}});
   }
   async function storageCheck(){
@@ -98,5 +105,5 @@ window.Cloud = (() => {
   async function drawRaffleWinner(){if(mode==='local'){const arr=JSON.parse(localStorage.getItem(LOCAL_RAFFLE)||'[]');if(!arr.length)throw new Error('No raffle entries');return {ok:true,winner:arr[Math.floor(Math.random()*arr.length)],drawnAt:new Date().toISOString()};}return request('raffle-draw',{method:'POST',headers:{'x-admin-key':key()}});}
   async function health(){try{return await request("health");}catch(e){return {ok:false,error:e.message};}}
   async function changeLocalPin(pin){if(mode==="local")localStorage.setItem(LOCAL_PIN,pin);}
-  return {getConfig,submitResponse,submitRaffle,login,getResponses,saveConfig,resetResponses,storageCheck,getActionRecords,saveAction,uploadActionEvidence,getActionEvidence,deleteActionEvidence,getRaffleEntries,drawRaffleWinner,health,changeLocalPin,get mode(){return mode;},get lastError(){return lastError;}};
+  return {getConfig,checkSurveyDevice,submitResponse,submitRaffle,login,getResponses,saveConfig,resetResponses,storageCheck,getActionRecords,saveAction,uploadActionEvidence,getActionEvidence,deleteActionEvidence,getRaffleEntries,drawRaffleWinner,health,changeLocalPin,get mode(){return mode;},get lastError(){return lastError;}};
 })();

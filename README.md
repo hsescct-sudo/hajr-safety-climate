@@ -1,54 +1,37 @@
-# Safety Climate Survey Platform — V10.10 FINAL CLEAN
+# Safety Climate Survey Platform — V10.11 FINAL CLEAN
 
-This release implements the final client comments on top of V10.8 while preserving the existing cloud response/configuration stores.
+V10.11 applies the latest client comments on top of V10.10 without removing existing campaigns, dashboards, reports, actions, raffle data or multilingual content.
 
-## Client final comments completed
+## V10.11 client comments completed
 
-- No project-specific legacy project wording is hard-coded in the visible platform or generated reports.
-- Default scope is **Overall Business Units – Corporation** and can still be edited from Project & Branding.
-- Open Question 2 and 3 are generic and translated across all 11 enabled languages.
-- Current Admin open-question wording is used in reports even for historical responses; old question snapshots are not used as report headings.
-- All three open questions are shown as grouped appendices plus one consolidated response register.
-- Filipino / Tagalog is forced enabled during migration.
-- Report Center retains Campaign + Division selection and 3 report types in Word / Excel.
-- Period filter: All Responses / 7 / 14 / 21 / 30 days.
-- QR poster includes the survey sequence plus a demo-video route.
-- Short survey demo video is included at `/demo.html`.
-- Favourable / Neutral / Unfavourable percentages remain visible in stacked sentiment charts.
-- Existing Campaigns, Comparison Dashboard, Actions, Evidence, Reports and historical responses are preserved.
+- **Executive Dashboard in reports:** Word reports now place an Executive Dashboard Overview immediately after the Executive Summary brief.
+- **PowerPoint output:** Report Center now supports Word, Excel and PowerPoint for all three report types. The PPTX is generated locally in the browser using the bundled PowerPoint library.
+- **Listen to every question:** Every rating question and every open question has a speaker button. It reads the currently displayed translated question using the selected language (Arabic, English, Urdu, Hindi, Nepali, Bangla, Telugu, Tamil, Malayalam, Chinese or Filipino/Tagalog).
+- **Strict single-device survey control:** One survey response per browser/device per campaign is enabled by default. The server stores only a separate one-way device lock; it does not add the device identifier to the anonymous survey response.
+- **Raffle strict-device control remains enabled:** One badge = one raffle entry and strict one raffle entry per browser/device remains on by default.
+- **Reset Results clears survey device locks:** this allows controlled retesting after an Admin reset.
+- Existing tri-colour percentage labels, division/campaign reports, generic wording, 11-language journey, open-question consolidation, QR poster/demo and action close-out remain unchanged.
 
-## Open questions
+## Report Center
 
-1. Please give three suggestions that you feel would make the biggest improvement to health and safety.
-2. What are the three biggest barriers preventing your project/company/division/business from making improvements in health and safety?
-3. What positive things do you see about health and safety in your project/company/division/business?
+Choose:
+1. Campaign
+2. Division
+3. Report Type — Management Executive / Detailed Safety Climate / Client Summary
+4. Format — **Word / Excel / PowerPoint**
 
 ## Deployment
 
-Upload the contents of this folder to the existing GitHub repository so these stay at repository root:
+Upload the **contents** of this folder to the existing GitHub repository so `public`, `netlify`, `netlify.toml` and `package.json` remain at repository root. Keep the existing Netlify `ADMIN_KEY`.
 
-- `public/`
-- `netlify/`
-- `netlify.toml`
-- `package.json`
+After Netlify shows **Published**:
+1. Open `/admin.html` and confirm **V10.11 FINAL CLEAN**.
+2. Data & Reset → confirm **Enforce one survey response per browser/device per campaign** is checked.
+3. Run **Test central storage**.
+4. Public survey → select Filipino (then Arabic) → open a questionnaire → press the **speaker icon** on a question and confirm the translated wording is read aloud.
+5. Submit one test response. Attempt a second response from the same browser/device in the same campaign and confirm it is blocked.
+6. Report Center → generate Word and confirm the Executive Dashboard appears immediately after the Executive Summary brief.
+7. Report Center → generate a PowerPoint and open the PPTX.
 
-Keep the existing Netlify `ADMIN_KEY`. Existing Netlify Blob store names are intentionally retained internally for backward compatibility with the live data.
-
-After deployment:
-1. Wait for Netlify **Published**.
-2. Open `/admin.html` and confirm **V10.10 FINAL CLEAN**.
-3. Run **Data & Reset → Test central storage**.
-4. Open **Questionnaire Builder** and confirm Open Q2/Q3 are generic in all languages.
-5. Generate a report and confirm the same current wording appears in the report.
-6. Confirm no legacy project-specific wording appears in the public survey or reports, and confirm the QR poster/demo contain no company logos.
-7. Open **QR Poster** and **Survey Demo Video**.
-
-
-## V10.10 Client Update
-- End-to-end multilingual public survey journey across all 11 languages.
-- Division display labels can be translated per language while stored division values remain stable for analytics.
-- Percentages are shown on all tri-colour sentiment stacks.
-- QR poster and demo visuals are generic and contain no company logos.
-- Optional online raffle module after survey submission. Badge/ID data is stored separately from anonymous survey answers.
-- One badge = one raffle entry; strict one-entry-per-device control by default (can be disabled in Admin for shared devices).
-- Admin Prize Draw tab includes participant register, CSV export and random winner draw.
+### Shared-device note
+Strict single-device mode intentionally blocks a second survey response from the same browser/device during the same campaign. If a project uses shared kiosks/tablets for many workers, the Admin can disable this control.

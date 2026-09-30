@@ -1,26 +1,19 @@
-SAFETY CLIMATE V10.10 FINAL CLEAN — GO-LIVE CHECK
+SAFETY CLIMATE V10.11 FINAL CLEAN — GO-LIVE CHECK
 
 [ ] GitHub root contains public / netlify / netlify.toml / package.json
 [ ] Netlify deploy = Published
-[ ] /admin.html header = V10.10 FINAL CLEAN
-[ ] Central storage test = passed
-[ ] Public page has no legacy project-specific wording
-[ ] Filipino / Tagalog appears as language 11
-[ ] Choose Filipino and confirm Role / Division / Buttons / Questions stay Filipino
-[ ] Choose Arabic or Urdu and confirm RTL layout remains readable
-[ ] Division display labels follow the selected language (or configured translation)
-[ ] Tri-colour sentiment charts show percentage values inside each colour segment
-[ ] Open Q2 is generic in all 11 languages
-[ ] Open Q3 is generic in all 11 languages
-[ ] Report headings use the CURRENT Admin wording
-[ ] All 3 open questions appear in grouped appendix
-[ ] Consolidated Open-Question Response Register appears
-[ ] Report Center supports Campaign + Division + 3 report types + Word/Excel
-[ ] Period options = All / 7 / 14 / 21 / 30 days
-[ ] QR Poster opens with NO company logos and shows the survey sequence
-[ ] Demo video opens and contains NO company logos
-[ ] Submit one test survey and confirm Prize Draw appears after success
-[ ] Register one Badge / ID and confirm duplicate Badge / ID is rejected
-[ ] With strict-device option enabled, confirm a second raffle entry from the same browser/device is rejected
-[ ] Admin > Prize Draw shows participants, CSV export and Random Winner
-[ ] Existing campaign/history/action data still loads
+[ ] /admin.html shows V10.11 FINAL CLEAN
+[ ] Data & Reset > Test central storage = passed
+[ ] Survey Access Control > one response per browser/device = enabled
+[ ] Filipino question screen remains Filipino after Role + Division selection
+[ ] Arabic / Urdu display RTL correctly
+[ ] Speaker icon appears on every rating and open question
+[ ] Speaker reads the currently displayed translated question
+[ ] First survey submission succeeds
+[ ] Second submission from the same browser/device + campaign is blocked
+[ ] Dashboard sentiment percentages remain visible inside tri-colour bars
+[ ] Report Center has Campaign + Division + 3 report types
+[ ] Output formats = Word + Excel + PowerPoint
+[ ] Word report has Executive Dashboard Overview immediately after Executive Summary
+[ ] PowerPoint opens and contains Executive Summary + Executive Dashboard Overview
+[ ] Raffle remains separate from anonymous survey response data

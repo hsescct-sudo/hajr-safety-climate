@@ -1,7 +1,7 @@
 {
-  "build": "V10.10 FINAL CLEAN",
-  "version": "10.10.0-final",
-  "date": "2026-09-26",
+  "build": "V10.11 FINAL CLEAN",
+  "version": "10.11.0-final",
+  "date": "2026-09-30",
   "architecture": "single public publish directory + Netlify function",
   "roles": [
     "Executive Leader / Director",
@@ -11,7 +11,7 @@
   ],
   "features": [
     "Power BI-style interactive dashboard",
-    "Clean HSE threshold bars: Green \u226575%, Amber 60\u201374.9%, Red <60%",
+    "Clean HSE threshold bars: Green ≥75%, Amber 60–74.9%, Red <60%",
     "Fully interactive Campaign Comparison dashboard",
     "Campaign management: create / activate / close / archive",
     "Report Center with campaign selection, report type selection and output format selection",
@@ -32,15 +32,20 @@
     "Sentiment bars display favourable / neutral / unfavourable percentages inside the colour segments",
     "QR Poster available from Admin with printable HTML and A3 PDF",
     "Forced migration adds Filipino / Tagalog to older 10-language cloud configurations",
-    "Netlify function version aligned to V10.10 for verified configuration saves",
+    "Netlify function version aligned to V10.11 for verified configuration saves",
     "Generic platform wording: no legacy project name in public pages or generated reports",
     "Open Question 2 and 3 generic wording synchronised across all 11 languages",
     "Reports always use current Admin open-question wording for historical and new responses",
     "Consolidated Open-Question Response Register added to all three report families",
     "Short survey demo video available from Admin and QR poster",
-    "Project-specific logo removed from the default visible branding"
+    "Project-specific logo removed from the default visible branding",
+    "Listen-to-question speaker button on every rating and open question using the selected survey language",
+    "Strict one survey response per browser/device per campaign enabled by default with server-side device lock",
+    "PowerPoint (.pptx) output added to Report Center for all three report types",
+    "Executive Dashboard Overview inserted immediately after the executive summary in Word reports",
+    "PowerPoint deck includes an Executive Dashboard Overview slide immediately after the executive summary brief"
   ],
   "note": "Generic multilingual Safety Climate Survey platform. No project-specific name is hard-coded in the public survey or reports. Detailed reporting uses internal management thresholds and does not claim an external industry benchmark.",
-  "label": "V10.10 FINAL CLEAN",
-  "release": "V10.10 FINAL CLEAN"
+  "label": "V10.11 FINAL CLEAN",
+  "release": "V10.11 FINAL CLEAN"
 }

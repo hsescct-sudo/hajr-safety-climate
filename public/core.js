@@ -44,7 +44,7 @@ window.Core = (() => {
   };
   function migrateConfig(defaults, current){
     const d=clone(defaults), c=current && typeof current === "object" ? current : null;
-    if(!c){ d.version='10.10-final'; d.release='10.10-final'; d.schema='safety-climate-v10'; return d; }
+    if(!c){ d.version='10.11-final'; d.release='10.11-final'; d.schema='safety-climate-v10'; return d; }
 
     if(c.project){
       const incomingCode=String(c.project.code||"").trim();
@@ -91,6 +91,11 @@ window.Core = (() => {
     }
     (d.divisions||[]).forEach(name=>{d.divisionTranslations??={};d.divisionTranslations[name]=mergeText(d.divisionTranslations[name]||{en:name},c.divisionTranslations?.[name]);d.divisionTranslations[name].en=name;});
     if(c.raffle && typeof c.raffle==='object') d.raffle={...d.raffle,...c.raffle};
+    if(c.surveyControls && typeof c.surveyControls==='object') d.surveyControls={...d.surveyControls,...c.surveyControls};
+    d.surveyControls??={oneResponsePerDevice:true};
+    if(typeof d.surveyControls.oneResponsePerDevice!=='boolean') d.surveyControls.oneResponsePerDevice=true;
+    d.raffle??={enabled:true,collectName:false,strictDevice:true};
+    if(typeof d.raffle.strictDevice!=='boolean') d.raffle.strictDevice=true;
     if(Array.isArray(c.languages)){
       const map=Object.fromEntries(c.languages.map(x=>[x.code,x]));
       d.languages=d.languages.map(x=>({...x,...(map[x.code]||{})}));
@@ -107,7 +112,7 @@ window.Core = (() => {
       if(legacyProjectText(d.ui[l]?.project)) d.ui[l].project=defaults.ui?.[l]?.project||defaults.project?.name?.[l]||defaults.project?.name?.en||'';
     });
     // V10.10: repair older cloud configs where non-English public labels were accidentally saved in English.
-    const journeyKeys=['language','home','start','selectRole','roleSub','step1','where','privacy','role','division','selectDivision','area','back','begin','step2','questions','cancel','submit','sd','d','n','a','sa','open','type','required','thanks','thanksSub','return','comment','addComment','commentPlaceholder','strongComment','continue','chooseLanguage','chooseLanguageSub','voiceInput','listening','speechUnsupported','speechDenied','questionnaires','languages','factors','anonymous','voicePrivacy','optional','activeCampaign','campaign','noActiveCampaign','surveyClosed','noQuestions','raffleTitle','raffleIntro','raffleBadge','raffleName','raffleEnter','raffleSkip','rafflePrivacy','raffleSuccess','raffleDuplicate','raffleDeviceDuplicate','raffleRequired','raffleUnavailable','submitError'];
+    const journeyKeys=['language','home','start','selectRole','roleSub','step1','where','privacy','role','division','selectDivision','area','back','begin','step2','questions','cancel','submit','sd','d','n','a','sa','open','type','required','thanks','thanksSub','return','comment','addComment','commentPlaceholder','strongComment','continue','chooseLanguage','chooseLanguageSub','voiceInput','listening','speechUnsupported','speechDenied','questionnaires','languages','factors','anonymous','voicePrivacy','optional','activeCampaign','campaign','noActiveCampaign','surveyClosed','noQuestions','raffleTitle','raffleIntro','raffleBadge','raffleName','raffleEnter','raffleSkip','rafflePrivacy','raffleSuccess','raffleDuplicate','raffleDeviceDuplicate','raffleRequired','raffleUnavailable','submitError','listenQuestion','stopReading','speechReadUnsupported','duplicateSurveyDevice'];
     Object.keys(d.ui||{}).forEach(l=>{if(l==='en')return;journeyKeys.forEach(k=>{const cur=d.ui?.[l]?.[k],eng=d.ui?.en?.[k],def=defaults.ui?.[l]?.[k];if(def && (!cur || cur===eng || cur===defaults.ui?.en?.[k]))d.ui[l][k]=def;});});
     // Preserve edited open questions while adding translations introduced by newer releases.
     if(Array.isArray(c.openQuestions)){
@@ -160,7 +165,7 @@ window.Core = (() => {
       d.questions=out;
     }
 
-    d.version='10.10-final'; d.release='10.10-final'; d.schema='safety-climate-v10';
+    d.version='10.11-final'; d.release='10.11-final'; d.schema='safety-climate-v10';
     return d;
   }
   const roleObject = (config,id) => (config.roles||[]).find(r=>r.id===canonicalRole(id));
