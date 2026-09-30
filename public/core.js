@@ -44,7 +44,7 @@ window.Core = (() => {
   };
   function migrateConfig(defaults, current){
     const d=clone(defaults), c=current && typeof current === "object" ? current : null;
-    if(!c){ d.version='10.11-final'; d.release='10.11-final'; d.schema='safety-climate-v10'; return d; }
+    if(!c){ d.version='10.12-final'; d.release='10.12-final'; d.schema='safety-climate-v10'; return d; }
 
     if(c.project){
       const incomingCode=String(c.project.code||"").trim();
@@ -165,7 +165,7 @@ window.Core = (() => {
       d.questions=out;
     }
 
-    d.version='10.11-final'; d.release='10.11-final'; d.schema='safety-climate-v10';
+    d.version='10.12-final'; d.release='10.12-final'; d.schema='safety-climate-v10';
     return d;
   }
   const roleObject = (config,id) => (config.roles||[]).find(r=>r.id===canonicalRole(id));

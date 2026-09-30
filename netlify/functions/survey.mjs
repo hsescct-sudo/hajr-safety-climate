@@ -22,7 +22,7 @@ export default async (req, context) => {
   const url=new URL(req.url),action=url.searchParams.get("action")||"";
   try{
     if(action==="health"&&req.method==="GET"){
-      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.11-final"});
+      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.12-final"});
     }
 
     if(action==="config"&&req.method==="GET"){
@@ -175,7 +175,7 @@ export default async (req, context) => {
       // Store a clean copy and then read the exact object back with strong
       // consistency. Returning that raw stored object lets the admin verify the
       // save without comparing against a migrated/default-normalized config.
-      const stored={...incoming,version:"10.11-final",schema:"safety-climate-v10",updatedAt:new Date().toISOString()};
+      const stored={...incoming,version:"10.12-final",schema:"safety-climate-v10",updatedAt:new Date().toISOString()};
       const store=configStore();
       await store.setJSON("main",stored);
       const verified=await store.get("main",{type:"json",consistency:"strong"});

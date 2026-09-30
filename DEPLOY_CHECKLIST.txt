@@ -1,8 +1,8 @@
-SAFETY CLIMATE V10.11 FINAL CLEAN — GO-LIVE CHECK
+SAFETY CLIMATE V10.12 FINAL CLEAN — GO-LIVE CHECK
 
 [ ] GitHub root contains public / netlify / netlify.toml / package.json
 [ ] Netlify deploy = Published
-[ ] /admin.html shows V10.11 FINAL CLEAN
+[ ] /admin.html shows V10.12 FINAL CLEAN
 [ ] Data & Reset > Test central storage = passed
 [ ] Survey Access Control > one response per browser/device = enabled
 [ ] Filipino question screen remains Filipino after Role + Division selection

@@ -1,8 +1,17 @@
-# Safety Climate Survey Platform — V10.11 FINAL CLEAN
+# Safety Climate Survey Platform — V10.12 FINAL CLEAN
 
-V10.11 applies the latest client comments on top of V10.10 without removing existing campaigns, dashboards, reports, actions, raffle data or multilingual content.
+V10.12 applies the latest client comments on top of V10.10 without removing existing campaigns, dashboards, reports, actions, raffle data or multilingual content.
 
-## V10.11 client comments completed
+## V10.12 report front-page + PowerPoint fix
+
+- All Word report families now open with a full Executive Dashboard as page 1.
+- The dashboard front page includes KPIs, overall tri-colour sentiment, 8 factors, role performance and division performance.
+- Executive Summary follows on page 2 instead of preceding the dashboard.
+- PowerPoint now uses the official browser bundle build and a lazy-load fallback.
+- PowerPoint slide 1 is the Executive Dashboard; slide 2 is the Executive Summary Brief.
+- PowerPoint save has a Blob-download fallback if direct `writeFile()` is blocked by the browser.
+
+## V10.12 client comments completed
 
 - **Executive Dashboard in reports:** Word reports now place an Executive Dashboard Overview immediately after the Executive Summary brief.
 - **PowerPoint output:** Report Center now supports Word, Excel and PowerPoint for all three report types. The PPTX is generated locally in the browser using the bundled PowerPoint library.
@@ -25,7 +34,7 @@ Choose:
 Upload the **contents** of this folder to the existing GitHub repository so `public`, `netlify`, `netlify.toml` and `package.json` remain at repository root. Keep the existing Netlify `ADMIN_KEY`.
 
 After Netlify shows **Published**:
-1. Open `/admin.html` and confirm **V10.11 FINAL CLEAN**.
+1. Open `/admin.html` and confirm **V10.12 FINAL CLEAN**.
 2. Data & Reset → confirm **Enforce one survey response per browser/device per campaign** is checked.
 3. Run **Test central storage**.
 4. Public survey → select Filipino (then Arabic) → open a questionnaire → press the **speaker icon** on a question and confirm the translated wording is read aloud.

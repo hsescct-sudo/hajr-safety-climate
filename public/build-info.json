@@ -1,6 +1,6 @@
 {
-  "build": "V10.11 FINAL CLEAN",
-  "version": "10.11.0-final",
+  "build": "V10.12 FINAL CLEAN",
+  "version": "10.12.0-final",
   "date": "2026-09-30",
   "architecture": "single public publish directory + Netlify function",
   "roles": [
@@ -32,7 +32,7 @@
     "Sentiment bars display favourable / neutral / unfavourable percentages inside the colour segments",
     "QR Poster available from Admin with printable HTML and A3 PDF",
     "Forced migration adds Filipino / Tagalog to older 10-language cloud configurations",
-    "Netlify function version aligned to V10.11 for verified configuration saves",
+    "Netlify function version aligned to V10.12 for verified configuration saves",
     "Generic platform wording: no legacy project name in public pages or generated reports",
     "Open Question 2 and 3 generic wording synchronised across all 11 languages",
     "Reports always use current Admin open-question wording for historical and new responses",
@@ -43,9 +43,12 @@
     "Strict one survey response per browser/device per campaign enabled by default with server-side device lock",
     "PowerPoint (.pptx) output added to Report Center for all three report types",
     "Executive Dashboard Overview inserted immediately after the executive summary in Word reports",
-    "PowerPoint deck includes an Executive Dashboard Overview slide immediately after the executive summary brief"
+    "PowerPoint deck includes an Executive Dashboard Overview slide immediately after the executive summary brief",
+    "Full Executive Dashboard is page 1 of all Word report families",
+    "PowerPoint browser bundle fix with lazy-load and Blob-download fallback",
+    "PowerPoint slide 1 is the full Executive Dashboard"
   ],
   "note": "Generic multilingual Safety Climate Survey platform. No project-specific name is hard-coded in the public survey or reports. Detailed reporting uses internal management thresholds and does not claim an external industry benchmark.",
-  "label": "V10.11 FINAL CLEAN",
-  "release": "V10.11 FINAL CLEAN"
+  "label": "V10.12 FINAL CLEAN",
+  "release": "V10.12 FINAL CLEAN"
 }
