@@ -373,7 +373,7 @@ window.PowerBIDashboard = (() => {
     html+=`<h2>Division Comparison</h2>${m.divs.map(d=>barReport(`${d.name} (${d.responses} responses)`,d.score,perfColor(d.score))).join('')}`;
     html+=`<div class="pagebreak"></div><h2>Question Analysis</h2><table class="data"><tr><th>Role</th><th>Factor</th><th>Question</th><th>Responses</th><th>Sentiment Distribution</th><th>Comments</th></tr>${m.qs.map(q=>`<tr><td>${htmlEsc(q.role)}</td><td>${htmlEsc(q.factor)}</td><td>${htmlEsc(q.question)}</td><td>${q.responses}</td><td>${stackedReport(q.favourable,q.neutral,q.unfavourable)}<div class="small">Fav ${q.favourable.toFixed(1)}% · Neutral ${q.neutral.toFixed(1)}% · Unfav ${q.unfavourable.toFixed(1)}%</div></td><td>${q.comments}</td></tr>`).join('')}</table>`;
     html+=`<div class="pagebreak"></div><h2>Management Action Plan & Close-out</h2><p class="action-note"><b>Close-out control:</b> actions can be answered in the Admin dashboard, supported with evidence attachments and formally marked Closed. The latest action response and evidence register are included below.</p><table class="data"><tr><th>#</th><th>Priority</th><th>Finding</th><th>Survey Evidence</th><th>Recommended Action</th><th>Owner</th><th>Target</th><th>Status</th><th>Action Taken / Response</th><th>Closure Comment</th><th>Evidence Files</th><th>Closed</th></tr>${reportActionRows(m.actions)}</table>`;
-    html+=`<h2>Open Question Summary</h2>${openQuestionsWordHtml(m.openQuestions)}<h2>Consolidated Open-Question Response Register</h2>${consolidatedOpenWordHtml(m.openQuestions)}<h2>Comments & Justifications</h2><table class="data"><tr><th>Role</th><th>Division</th><th>Date</th><th>Rating</th><th>Comment</th></tr>${m.comments.slice(0,120).map(c=>`<tr><td>${htmlEsc(rlabel(c.role))}</td><td>${htmlEsc(c.division)}</td><td>${c.time?new Date(c.time).toLocaleDateString():''}</td><td>${c.rating??''}</td><td>${htmlEsc(c.text)}</td></tr>`).join('')}</table><div class="footer">Confidential – Management Use · Generated from Safety Climate Survey Platform · V10.13 Final Clean</div></body></html>`;
+    html+=`<h2>Open Question Summary</h2>${openQuestionsWordHtml(m.openQuestions)}<h2>Consolidated Open-Question Response Register</h2>${consolidatedOpenWordHtml(m.openQuestions)}<h2>Comments & Justifications</h2><table class="data"><tr><th>Role</th><th>Division</th><th>Date</th><th>Rating</th><th>Comment</th></tr>${m.comments.slice(0,120).map(c=>`<tr><td>${htmlEsc(rlabel(c.role))}</td><td>${htmlEsc(c.division)}</td><td>${c.time?new Date(c.time).toLocaleDateString():''}</td><td>${c.rating??''}</td><td>${htmlEsc(c.text)}</td></tr>`).join('')}</table><div class="footer">Confidential – Management Use · Generated from Safety Climate Survey Platform · V10.14 Final Clean</div></body></html>`;
     download(`Safety_Climate_${safeFilePart(campaign)}_${safeFilePart(m.division)}_Management_Executive_Report_${new Date().toISOString().slice(0,10)}.doc`,'\ufeff'+html,'application/msword;charset=utf-8');
   }
   async function exportExcel(campaignName=null){
@@ -461,7 +461,7 @@ window.PowerBIDashboard = (() => {
     const getCtor=()=>typeof globalThis!=='undefined'&&typeof globalThis.PptxGenJS==='function'?globalThis.PptxGenJS:null;
     let ctor=getCtor();if(ctor)return ctor;
     const old=document.querySelector('script[data-pptx-bundle]');if(old)old.remove();
-    await new Promise((resolve,reject)=>{let done=false;const sc=document.createElement('script'),finish=(fn,arg)=>{if(done)return;done=true;clearTimeout(timer);fn(arg)};sc.src='vendor/pptxgen.bundle.js?v=10.13.0-final';sc.async=true;sc.dataset.pptxBundle='1';sc.onload=()=>finish(resolve);sc.onerror=()=>finish(reject,new Error('PowerPoint library failed to load.'));const timer=setTimeout(()=>finish(reject,new Error('PowerPoint library loading timed out.')),10000);document.head.appendChild(sc);});
+    await new Promise((resolve,reject)=>{let done=false;const sc=document.createElement('script'),finish=(fn,arg)=>{if(done)return;done=true;clearTimeout(timer);fn(arg)};sc.src='vendor/pptxgen.bundle.js?v=10.14.0-final';sc.async=true;sc.dataset.pptxBundle='1';sc.onload=()=>finish(resolve);sc.onerror=()=>finish(reject,new Error('PowerPoint library failed to load.'));const timer=setTimeout(()=>finish(reject,new Error('PowerPoint library loading timed out.')),10000);document.head.appendChild(sc);});
     ctor=getCtor();if(!ctor)throw new Error('PowerPoint library is unavailable in this browser. Please refresh the Admin page and try again.');return ctor;
   }
   async function savePowerPointFile(pptx,filename){
@@ -511,12 +511,66 @@ Action status: ${ins.open} open / in progress · ${ins.closed} closed`,{x:.55,y:
     const filename=`Safety_Climate_${safeFilePart(m.campaign)}_${safeFilePart(m.division)}_${safeFilePart(titleText)}_${new Date().toISOString().slice(0,10)}.pptx`;await savePowerPointFile(pptx,filename);
   }
 
+  function excelReportPayload(m,reportType='executive'){
+    const reportTypeLabel=reportType==='detailed'?'Detailed Safety Climate Report':reportType==='client'?'Client Summary Report':'Management Executive Report';
+    const commentsCount=(m.comments||[]).length,highPriority=(m.actions||[]).filter(a=>a.priority==='High').length;
+    return{
+      reportType,reportTypeLabel,project:projectDisplayName(),campaign:m.campaign,division:m.division,generatedAt:new Date().toISOString(),
+      summary:{responses:m.rs?.length||0,favourable:m.p?.n?m.p.good:null,neutral:m.p?.n?m.p.neutral:null,unfavourable:m.p?.n?m.p.bad:null,climateIndex:m.idx,comments:commentsCount,highPriority,actions:(m.actions||[]).length},
+      factors:(m.factors||[]).map(f=>({id:f.id,label:f.label,favourable:f.score,neutral:f.neutral,unfavourable:f.bad,responses:f.n||0})),
+      roles:(m.roles||[]).map(r=>({id:r.id,label:r.label,favourable:r.score,responses:r.n??r.responses??0})),
+      divisions:(m.divs||[]).map(d=>({name:d.name,favourable:d.score,responses:d.responses||0})),
+      questions:(m.qs||[]).map(q=>({role:q.role,factor:q.factor,question:q.question,responses:q.responses,favourable:q.favourable,neutral:q.neutral,unfavourable:q.unfavourable,average:q.average,comments:q.comments})),
+      openQuestions:(m.openQuestions||[]).map(g=>({question:g.question,count:g.count,responses:(g.responses||[]).map(x=>({role:rlabel(x.role),division:x.division,campaign:x.campaign,date:x.time,text:x.text}))})),
+      actions:(m.actions||[]).map(a=>({priority:a.priority,title:a.title,evidence:a.evidence,recommendedAction:a.recommendedAction||a.action,owner:a.owner,target:a.target,status:a.status,adminResponse:a.adminResponse,closureComment:a.closureComment,attachments:a.attachments||[],closedAt:a.closedAt})),
+      comments:(m.comments||[]).map(c=>({role:rlabel(c.role),division:c.division,campaign:c.campaign,time:c.time,rating:c.rating,text:c.text})),
+      factorDetails:(m.factorDetails||[]).map(f=>({index:f.index,label:f.label,questions:(f.questions||[]).map(q=>({role:q.role,text:q.text,responses:q.responses,favourable:q.favourable,neutral:q.neutral,unfavourable:q.unfavourable,average:q.average}))}))
+    };
+  }
+  function xmlCell(v){const x=String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');return `<Cell><Data ss:Type="String">${x}</Data></Cell>`;}
+  function fallbackExcelXml(payload,filename){
+    const s=payload.summary||{},rows=[['Safety Climate Survey — Executive Dashboard'],['Project / Business',payload.project],['Campaign',payload.campaign],['Division',payload.division],['Generated',new Date(payload.generatedAt).toLocaleString()],[],['Responses','Favourable','Neutral','Unfavourable','Climate Index / 5'],[s.responses,s.favourable==null?'':s.favourable+'%',s.neutral==null?'':s.neutral+'%',s.unfavourable==null?'':s.unfavourable+'%',s.climateIndex==null?'':Number(s.climateIndex).toFixed(2)],[],['#','Safety Climate Factor','Favourable','Neutral','Unfavourable','Responses']];
+    (payload.factors||[]).forEach((f,i)=>rows.push([i+1,f.label,f.favourable==null?'':f.favourable+'%',f.neutral==null?'':f.neutral+'%',f.unfavourable==null?'':f.unfavourable+'%',f.responses]));
+    const body=rows.map(r=>`<Row>${r.map(xmlCell).join('')}</Row>`).join('');
+    const xml=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Executive Dashboard"><Table>${body}</Table></Worksheet></Workbook>`;
+    download(filename.replace(/\.xlsx$/i,'.xml'),'\ufeff'+xml,'application/vnd.ms-excel;charset=utf-8');
+  }
+  function excelWorkbookSheets(payload){
+    const s=payload.summary||{},dash=[
+      ['Safety Climate Survey — Executive Dashboard'],['Report Type',payload.reportTypeLabel],['Project / Business',payload.project],['Campaign',payload.campaign],['Division',payload.division],['Generated',new Date(payload.generatedAt).toLocaleString()],[],
+      ['Responses','Favourable','Neutral','Unfavourable','Climate Index / 5','Comments','High Priority','Actions'],[s.responses??0,s.favourable==null?'':s.favourable+'%',s.neutral==null?'':s.neutral+'%',s.unfavourable==null?'':s.unfavourable+'%',s.climateIndex==null?'':Number(s.climateIndex).toFixed(2),s.comments??0,s.highPriority??0,s.actions??0],[],
+      ['Summary of Overall Responses by Factor'],['#','Safety Climate Factor','Favourable','Neutral','Unfavourable','Responses']
+    ];
+    const dashStyles={'C13':3,'D13':4,'E13':5};
+    (payload.factors||[]).forEach((f,i)=>{const r=dash.length+1;dash.push([i+1,f.label,f.favourable==null?'':f.favourable+'%',f.neutral==null?'':f.neutral+'%',f.unfavourable==null?'':f.unfavourable+'%',f.responses??0]);dashStyles[`C${r}`]=3;dashStyles[`D${r}`]=4;dashStyles[`E${r}`]=5;});
+    dash.push([],['Favourable by Role'],['Role','Favourable','Responses']);(payload.roles||[]).forEach(x=>dash.push([x.label,x.favourable==null?'':x.favourable+'%',x.responses??0]));
+    dash.push([],['Division Performance'],['Division','Favourable','Responses']);(payload.divisions||[]).forEach(x=>dash.push([x.name,x.favourable==null?'':x.favourable+'%',x.responses??0]));
+    const q=[['Role','Factor','Question','Responses','Favourable','Neutral','Unfavourable','Average / 5','Comments']];(payload.questions||[]).forEach(x=>q.push([x.role,x.factor,x.question,x.responses??0,x.favourable==null?'':x.favourable+'%',x.neutral==null?'':x.neutral+'%',x.unfavourable==null?'':x.unfavourable+'%',x.average==null?'':Number(x.average).toFixed(2),x.comments??0]));
+    const oq=[['Question #','Question','Role','Division','Campaign','Date','Response']];(payload.openQuestions||[]).forEach((g,gi)=>{if(!(g.responses||[]).length)oq.push([gi+1,g.question,'','','','','No responses']);(g.responses||[]).forEach(x=>oq.push([gi+1,g.question,x.role,x.division,x.campaign,x.date?new Date(x.date).toLocaleString():'',x.text]));});
+    const acts=[['#','Priority','Finding','Survey Evidence','Recommended Action','Owner','Target','Status','Action Taken / Response','Closure Comment','Evidence Attachments','Closed Date']];(payload.actions||[]).forEach((a,i)=>acts.push([i+1,a.priority,a.title,a.evidence,a.recommendedAction,a.owner,a.target,a.status,a.adminResponse,a.closureComment,(a.attachments||[]).map(x=>x.name||x).join('; '),a.closedAt?new Date(a.closedAt).toLocaleString():'']));
+    const cm=[['Role','Division','Campaign','Date','Rating','Comment']];(payload.comments||[]).forEach(c=>cm.push([c.role,c.division,c.campaign,c.time?new Date(c.time).toLocaleString():'',c.rating??'',c.text]));
+    const sheets=[
+      {name:'Executive Dashboard',rows:dash,widths:[14,38,16,16,18,14,14,14],rowStyles:{1:2,8:1,11:6,12:1},cellStyles:dashStyles,merges:['A1:H1'],freezeRows:0},
+      {name:'Questions',rows:q,widths:[28,34,72,12,14,14,16,14,12],rowStyles:{1:1},freezeRows:1,autoFilter:`A1:I${Math.max(1,q.length)}`},
+      {name:'Open Questions',rows:oq,widths:[12,72,28,28,28,22,90],rowStyles:{1:1},freezeRows:1,autoFilter:`A1:G${Math.max(1,oq.length)}`},
+      {name:'Actions',rows:acts,widths:[7,12,45,55,65,24,18,16,65,55,40,22],rowStyles:{1:1},freezeRows:1,autoFilter:`A1:L${Math.max(1,acts.length)}`},
+      {name:'Comments',rows:cm,widths:[28,28,28,22,10,90],rowStyles:{1:1},freezeRows:1,autoFilter:`A1:F${Math.max(1,cm.length)}`}
+    ];
+    if((payload.factorDetails||[]).length){const fd=[['Factor #','Factor','Role','Question','Responses','Favourable','Neutral','Unfavourable','Average / 5']];payload.factorDetails.forEach(f=>(f.questions||[]).forEach(x=>fd.push([f.index,f.label,x.role,x.text,x.responses??0,x.favourable==null?'':x.favourable+'%',x.neutral==null?'':x.neutral+'%',x.unfavourable==null?'':x.unfavourable+'%',x.average==null?'':Number(x.average).toFixed(2)])));sheets.splice(2,0,{name:'Factor Detail',rows:fd,widths:[10,34,28,72,12,14,14,16,14],rowStyles:{1:1},freezeRows:1,autoFilter:`A1:I${Math.max(1,fd.length)}`});}
+    return sheets;
+  }
+  async function exportRealExcel(campaignName=null,reportType='executive'){
+    const m=reportType==='detailed'?detailedReportModel(campaignName):reportModel(campaignName),payload=excelReportPayload(m,reportType);
+    const filename=`Safety_Climate_${safeFilePart(m.campaign)}_${safeFilePart(m.division)}_${safeFilePart(payload.reportTypeLabel)}_${new Date().toISOString().slice(0,10)}.xlsx`;
+    try{if(!window.SimpleXlsx?.download)throw new Error('XLSX engine unavailable');window.SimpleXlsx.download(filename,excelWorkbookSheets(payload));}
+    catch(e){console.error('Native XLSX export failed; using Excel XML fallback',e);fallbackExcelXml(payload,filename);}
+  }
   function reportCenterSelection(){return{campaign:$('reportCampaign')?.value||currentCampaign(),division:$('reportDivision')?.value||'All',type:document.querySelector('input[name="reportType"]:checked')?.value||'executive',format:document.querySelector('input[name="reportFormat"]:checked')?.value||'word'};}
   function updateReportSelectionSummary(){const s=reportCenterSelection(),type=s.type==='detailed'?'Detailed Safety Climate Report':s.type==='client'?'Client Summary Report':'Management Executive Report',fmt=s.format==='excel'?'Excel':s.format==='powerpoint'?'PowerPoint':'Word',division=s.division==='All'?'All Divisions':s.division;if($('reportSelectionSummary'))$('reportSelectionSummary').innerHTML=`<b>${htmlEsc(type)}</b> · ${htmlEsc(fmt)}<br>Campaign: <b>${htmlEsc(s.campaign)}</b> · Division: <b>${htmlEsc(division)}</b>`;}
   function syncReportCenter(){syncLiveState();const el=$('reportCampaign'),div=$('reportDivision');if(!el||!div)return;const names=campaignNames(),preferred=filters.campaign!=='All'&&names.includes(filters.campaign)?filters.campaign:currentCampaign();el.innerHTML=names.map(n=>`<option value="${htmlEsc(n)}">${htmlEsc(n)}</option>`).join('');if(names.includes(preferred))el.value=preferred;const divisions=[...new Set([...(config?.divisions||[]),...responses.map(r=>r.division).filter(Boolean)])].sort();div.innerHTML='<option value="All">All Divisions</option>'+divisions.map(d=>`<option value="${htmlEsc(d)}">${htmlEsc(d)}</option>`).join('');if(filters.division!=='All'&&divisions.includes(filters.division))div.value=filters.division;updateReportSelectionSummary();}
   function openReportCenter(){syncReportCenter();$('reportGenerateMessage').textContent='';$('reportModal').classList.remove('hidden');}
   function closeReportCenter(){$('reportModal').classList.add('hidden');$('reportGenerateMessage').textContent='';}
-  async function generateSelectedReport(){const s=reportCenterSelection();reportScope.division=s.division||'All';$('reportGenerateMessage').textContent='Generating report…';$('reportGenerateBtn').disabled=true;try{if(s.format==='powerpoint')await exportPowerPoint(s.campaign,s.type);else if(s.type==='executive'&&s.format==='word')await exportWord(s.campaign);else if(s.type==='executive'&&s.format==='excel')await exportExcel(s.campaign);else if(s.type==='detailed'&&s.format==='word')await exportDetailedWord(s.campaign);else if(s.type==='detailed'&&s.format==='excel')await exportDetailedExcel(s.campaign);else if(s.type==='client'&&s.format==='word')await exportClientWord(s.campaign);else await exportClientExcel(s.campaign);$('reportGenerateMessage').textContent='Report generated.';}catch(e){console.error(e);$('reportGenerateMessage').textContent='Report failed: '+e.message;alert('Report generation failed: '+e.message);}finally{$('reportGenerateBtn').disabled=false;reportScope.division='All';}}
+  async function generateSelectedReport(){const s=reportCenterSelection();reportScope.division=s.division||'All';$('reportGenerateMessage').textContent='Generating report…';$('reportGenerateBtn').disabled=true;try{if(s.format==='powerpoint')await exportPowerPoint(s.campaign,s.type);else if(s.format==='excel')await exportRealExcel(s.campaign,s.type);else if(s.type==='executive')await exportWord(s.campaign);else if(s.type==='detailed')await exportDetailedWord(s.campaign);else await exportClientWord(s.campaign);$('reportGenerateMessage').textContent='Report generated.';}catch(e){console.error(e);$('reportGenerateMessage').textContent='Report failed: '+e.message;alert('Report generation failed: '+e.message);}finally{$('reportGenerateBtn').disabled=false;reportScope.division='All';}}
 
   async function loadActionRecords(){try{actionRecords=await Cloud.getActionRecords();}catch(e){console.error('Action records load failed',e);actionRecords=[];}}
   async function initData(){config=Admin.getConfig?.();responses=Admin.getResponses?.()||[];if(!config)return;await loadActionRecords();render();}
@@ -535,5 +589,5 @@ Action status: ${ins.open} open / in progress · ${ins.closed} closed`,{x:.55,y:
     showPage('overview');window.addEventListener('safety:data',initData);setTimeout(initData,100);
   }
   bind();
-  return {render,reset,exportWord,exportExcel,exportDetailedWord,exportDetailedExcel,exportClientWord,exportClientExcel,exportPowerPoint,openReportCenter,openActionModal};
+  return {render,reset,exportWord,exportExcel,exportDetailedWord,exportDetailedExcel,exportClientWord,exportClientExcel,exportRealExcel,exportPowerPoint,openReportCenter,openActionModal};
 })();

@@ -1,8 +1,8 @@
-SAFETY CLIMATE V10.13 FINAL CLEAN — GO-LIVE CHECK
+SAFETY CLIMATE V10.14 FINAL CLEAN — GO-LIVE CHECK
 
 [ ] Upload repository contents with public/ at publish root
 [ ] Netlify deploy shows Published
-[ ] /admin.html shows V10.13 FINAL CLEAN
+[ ] /admin.html shows V10.14 FINAL CLEAN
 [ ] 8 Safety Climate Factors displays 100% stacked Favourable / Neutral / Unfavourable bars
 [ ] Percentages appear inside the three colour segments
 [ ] Dashboard filters and factor click cross-filter still work
@@ -17,3 +17,9 @@ SAFETY CLIMATE V10.13 FINAL CLEAN — GO-LIVE CHECK
 [ ] Public survey speaker icon reads the selected language
 [ ] One response per browser/device per campaign is enabled and blocks a duplicate test
 [ ] Central storage test passes
+
+V10.14 CLIENT FIX CHECKS
+- Public page: first KPI must read “4 Roles”.
+- Listen icon: test at least Arabic, Hindi, Bangla and Filipino on the actual target device/browser. Device speech packs still determine which synthetic voices are available.
+- Excel: generated file must end in .xlsx and open directly without the Excel extension-mismatch warning.
+- Netlify build must install package dependency xlsx@0.18.5.

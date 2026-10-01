@@ -1,7 +1,7 @@
 {
-  "build": "V10.13 FINAL CLEAN",
-  "version": "10.13.0-final",
-  "date": "2026-09-30",
+  "build": "V10.14 FINAL CLEAN",
+  "version": "10.14.0-final",
+  "date": "2026-10-01",
   "architecture": "single public publish directory + Netlify function",
   "roles": [
     "Executive Leader / Director",
@@ -16,7 +16,7 @@
     "Fully interactive Campaign Comparison dashboard",
     "Campaign management: create / activate / close / archive",
     "Report Center with campaign and division selection",
-    "Word / Excel / PowerPoint output for all three report types",
+    "Word / native XLSX Excel / PowerPoint output for all three report types",
     "Word report order: Executive Summary first, full Executive Dashboard immediately after",
     "Executive Dashboard includes KPIs, Overall Safety Climate donut, role performance, tri-colour factor summary and division performance",
     "Overall Safety Climate donut embedded in Word and PowerPoint reports",
@@ -24,15 +24,17 @@
     "PowerPoint browser bundle with on-demand reload, timeout and Blob-download fallback",
     "Detailed Safety Climate Report with factor, question, role, division, comments and recommendations",
     "Management Action Plan and Close-out Register with evidence attachments",
-    "11-language public survey with RTL support, voice-to-text and listen-to-question",
     "Strict one survey response per browser/device per campaign enabled by default",
     "Raffle: one badge entry plus optional strict device control; raffle data separate from anonymous survey responses",
     "Central Netlify Blobs storage and verified configuration saving",
     "Consolidated open-question response register in report families",
     "Dashboard period filters: 7 / 14 / 21 / 30 days",
-    "Generic platform wording with no legacy project name hard-coded in public pages or generated reports"
+    "Generic platform wording with no legacy project name hard-coded in public pages or generated reports",
+    "Public home KPI corrected to 4 Roles in all 11 languages",
+    "Listen-to-question waits for device speech voices and uses language-specific locale fallbacks for all 11 languages",
+    "Native XLSX export generated in-browser with the bundled zero-dependency XLSX writer; no HTML-as-.xls extension mismatch warning"
   ],
-  "note": "V10.13 aligns the online factor dashboard and generated reports around the same Favourable / Neutral / Unfavourable 100% stacked view, restores the report donut, and places the Executive Summary before the full report dashboard.",
-  "label": "V10.13 FINAL CLEAN",
-  "release": "V10.13 FINAL CLEAN"
+  "note": "V10.14 fixes the client comments: 4 Roles wording, more reliable multilingual listen-to-question, and true XLSX Excel export while preserving the V10.13 report/dashboard structure.",
+  "label": "V10.14 FINAL CLEAN",
+  "release": "V10.14 FINAL CLEAN"
 }

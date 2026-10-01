@@ -1,19 +1,18 @@
-# Safety Climate Survey Platform — V10.13 FINAL CLEAN
+# Safety Climate Survey Platform — V10.14 FINAL CLEAN
 
-V10.13 applies the latest reporting and dashboard comments on top of V10.12 while preserving campaigns, responses, actions, raffle data, multilingual content and single-device controls.
+V10.14 fixes the latest client comments while preserving the V10.13 dashboard/report design, campaigns, responses, actions, raffle data and single-device controls.
 
-## V10.13 changes completed
+## V10.14 fixes completed
 
-- **Online 8 Safety Climate Factors is now tri-colour:** every factor is a 100% stacked bar showing **Favourable / Neutral / Unfavourable** with the percentage inside each colour segment.
-- **Report factor summary now matches the dashboard:** Word, Excel and PowerPoint show the same three-colour response distribution for all 8 factors.
-- **Executive Summary is first:** Word reports open with a concise Executive Summary brief, followed immediately by the full Executive Dashboard.
-- **Full report dashboard:** KPIs, Overall Safety Climate donut, Favourable by Role, tri-colour factor summary and Division Performance are shown together.
-- **Donut restored in reports:** the Overall Safety Climate donut is embedded in the Word dashboard and the PowerPoint Executive Dashboard.
-- **PowerPoint sequence corrected:** Slide 1 = Executive Summary Brief, Slide 2 = Executive Dashboard, Slide 3 = Summary of Overall Responses by Factor.
-- **PowerPoint reliability hardened:** bundled PptxGenJS is reloaded on demand if needed, with a load timeout plus Blob-download fallback if direct `writeFile()` is blocked.
-- Existing **listen-to-question**, 11-language journey, strict single-device survey control, raffle control, open-question consolidation, campaign/division filters and action close-out remain enabled.
+- **4 Roles:** the public KPI now says **Roles** (not Questionnaires) and the wording is forced across all 11 languages during config migration.
+- **Listen to Question:** voice loading now waits for browser/device voices and tries multiple language locale variants (including Filipino/Tagalog, Bangla, Urdu, Arabic, Nepali, Telugu, Tamil, Malayalam and Chinese).
+- **Excel fixed:** reports are generated as a **real `.xlsx` workbook** by the bundled zero-dependency XLSX writer. This removes the Microsoft Excel “file format and extension do not match” warning caused by the previous HTML-as-`.xls` method.
+- The `.xlsx` workbook contains Executive Dashboard, Questions, Factor Detail (detailed report), Open Questions, Actions and Comments sheets.
+- If native XLSX generation is unavailable, the browser produces an Excel-compatible XML fallback instead of a corrupt/mismatched `.xls`.
+- Existing Word and PowerPoint reports are unchanged.
 
 ## Report Center
+
 
 Choose:
 1. Campaign
@@ -26,7 +25,7 @@ Choose:
 Upload the **contents** of this folder to the existing GitHub repository so `public`, `netlify`, `netlify.toml` and `package.json` remain at repository root. Keep the existing Netlify `ADMIN_KEY`.
 
 After Netlify shows **Published**:
-1. Open `/admin.html` and confirm **V10.13 FINAL CLEAN**.
+1. Open `/admin.html` and confirm **V10.14 FINAL CLEAN**.
 2. Confirm the **8 Safety Climate Factors** chart shows green / amber / red stacked percentages.
 3. Data & Reset → confirm **Enforce one survey response per browser/device per campaign** is checked.
 4. Run **Test central storage**.

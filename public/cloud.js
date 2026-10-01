@@ -103,6 +103,7 @@ window.Cloud = (() => {
   }
   async function getRaffleEntries(){if(mode==='local')return {entries:JSON.parse(localStorage.getItem(LOCAL_RAFFLE)||'[]'),draws:[]};return request('raffle-entries',{headers:{'x-admin-key':key()}});}
   async function drawRaffleWinner(){if(mode==='local'){const arr=JSON.parse(localStorage.getItem(LOCAL_RAFFLE)||'[]');if(!arr.length)throw new Error('No raffle entries');return {ok:true,winner:arr[Math.floor(Math.random()*arr.length)],drawnAt:new Date().toISOString()};}return request('raffle-draw',{method:'POST',headers:{'x-admin-key':key()}});}
+
   async function health(){try{return await request("health");}catch(e){return {ok:false,error:e.message};}}
   async function changeLocalPin(pin){if(mode==="local")localStorage.setItem(LOCAL_PIN,pin);}
   return {getConfig,checkSurveyDevice,submitResponse,submitRaffle,login,getResponses,saveConfig,resetResponses,storageCheck,getActionRecords,saveAction,uploadActionEvidence,getActionEvidence,deleteActionEvidence,getRaffleEntries,drawRaffleWinner,health,changeLocalPin,get mode(){return mode;},get lastError(){return lastError;}};
