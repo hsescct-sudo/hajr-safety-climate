@@ -35,7 +35,7 @@ window.Admin = (() => {
     if(changeSerial===savedSerial && !manual){setSaveState('','Saved');return;}
     saving=true;const startSerial=changeSerial;setSaveState('saving','Saving…');
     try{
-      config.version='10.15-final';config.release='10.15-final';config.schema='safety-climate-v10';
+      config.version='10.16-final';config.release='10.16-final';config.schema='safety-climate-v10';
       const snapshot=Core.clone(config);
       const expected=persistSignature(snapshot);
       const out=await Cloud.saveConfig(snapshot);
@@ -256,7 +256,27 @@ window.Admin = (() => {
   function exportConfig(){download('Safety_Climate_V10_11_Config.json',JSON.stringify(config,null,2));}
   function exportJSON(){download('Safety_Climate_V10_11_Results.json',JSON.stringify(responses,null,2));}
   function exportCSV(){const rows=[['Timestamp','Campaign','Role','Division','Area','Language','Question ID','Factor','Rating','Normalised rating','Comment']];responses.forEach(r=>(r.answers||[]).forEach(a=>rows.push([r.timestamp,r.campaign||'Legacy / Previous',responseRole(r),r.division,r.area,r.language,a.qid,a.factor,a.value,value(a),a.comment||''])));download('Safety_Climate_V10_11_Results.csv',rows.map(row=>row.map(x=>`"${String(x??'').replaceAll('"','""')}"`).join(',')).join('\n'),'text/csv');}
-  async function changePin(){const p=$('newLocalPin').value.trim();if(p.length<4){alert('Use at least 4 characters.');return;}await Cloud.changeLocalPin(p);$('newLocalPin').value='';alert('Local preview PIN changed.');}
+  async function changeAdminPassword(){
+    const current=$("currentAdminPassword")?.value.trim()||"",next=$("newAdminPassword")?.value.trim()||"",confirm=$("confirmAdminPassword")?.value.trim()||"",status=$("adminPasswordStatus");
+    if(status)status.textContent="";
+    if(!current){alert("Enter the current Admin password.");return;}
+    if(next.length<8){alert("New Admin password must be at least 8 characters.");return;}
+    if(next!==confirm){alert("New password and confirmation do not match.");return;}
+    if(next===current){alert("Choose a different new password.");return;}
+    try{
+      if(status)status.textContent="Changing password…";
+      const out=await Cloud.changeAdminKey(current,next);
+      if(!out?.ok)throw new Error(out?.message||"Password change failed.");
+      $("adminKey").value=next;
+      ["currentAdminPassword","newAdminPassword","confirmAdminPassword"].forEach(id=>{if($(id))$(id).value="";});
+      if(status)status.textContent="Password changed successfully. New password is active now.";
+      alert("Admin password changed successfully. Use the new password next time you sign in.");
+    }catch(e){
+      if(status)status.textContent="Password change failed.";
+      alert("Could not change Admin password: "+e.message);
+    }
+  }
+  async function changePin(){const p=$("newLocalPin").value.trim();if(p.length<4){alert("Use at least 4 characters.");return;}await Cloud.changeLocalPin(p);$("newLocalPin").value="";alert("Local preview PIN changed.");}
 
   window.addEventListener('beforeunload',e=>{if(changeSerial!==savedSerial){e.preventDefault();e.returnValue='';}});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('questionModal').classList.contains('hidden'))closeQuestionModal();});
@@ -278,6 +298,6 @@ window.Admin = (() => {
       alert(`Prize Draw data cleared. Survey responses were NOT touched.\nParticipants deleted: ${d.entries??0}\nDevice locks deleted: ${d.deviceLocks??0}\nDraw history deleted: ${d.drawHistory??0}`);
     }catch(e){alert('Could not clear Prize Draw data: '+e.message);}
   }
-  return {login,tab,refreshResponses,setDashboardDivision,setDashboardFactor,setDashboardSearch,clearDashboardFilters,openQuestionModal,closeQuestionModal,modalBackdrop,renderSettings,setProjectCode,setProjectText,setTheme,setCampaignName,setCampaignStatus,renderCampaigns,createCampaign,updateCampaign,activateCampaign,closeCampaign,archiveCampaign,addLogo,replaceLogo,toggleLogo,deleteLogo,saveNow,renderQuestionBuilder,setQuestion,setQuestionText,addQuestion,moveQuestion,duplicateQuestion,deleteQuestion,addOpenQuestion,setOpen,deleteOpen,renderAudience,setLanguage,setRole,setRoleText,setDivisions,setDivisionTranslation,refreshRaffle,setRaffleSetting,renderSurveyControls,setSurveyControl,drawRaffleWinner,exportRaffleCSV,clearRaffleData,testStorage,resetResponses,exportConfig,exportJSON,exportCSV,changePin,getConfig:()=>config,getResponses:()=>responses,notifyDashboard};
+  return {login,tab,refreshResponses,setDashboardDivision,setDashboardFactor,setDashboardSearch,clearDashboardFilters,openQuestionModal,closeQuestionModal,modalBackdrop,renderSettings,setProjectCode,setProjectText,setTheme,setCampaignName,setCampaignStatus,renderCampaigns,createCampaign,updateCampaign,activateCampaign,closeCampaign,archiveCampaign,addLogo,replaceLogo,toggleLogo,deleteLogo,saveNow,renderQuestionBuilder,setQuestion,setQuestionText,addQuestion,moveQuestion,duplicateQuestion,deleteQuestion,addOpenQuestion,setOpen,deleteOpen,renderAudience,setLanguage,setRole,setRoleText,setDivisions,setDivisionTranslation,refreshRaffle,setRaffleSetting,renderSurveyControls,setSurveyControl,drawRaffleWinner,exportRaffleCSV,clearRaffleData,testStorage,resetResponses,exportConfig,exportJSON,exportCSV,changeAdminPassword,changePin,getConfig:()=>config,getResponses:()=>responses,notifyDashboard};
 })();
 if(sessionStorage.getItem('safety_admin_key')){document.getElementById('adminKey').value=sessionStorage.getItem('safety_admin_key');Admin.login();}

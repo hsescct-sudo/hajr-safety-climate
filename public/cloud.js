@@ -56,6 +56,16 @@ window.Cloud = (() => {
     if(mode==="local") return localResponses();
     return (await request("responses",{headers:{"x-admin-key":key()}})).responses||[];
   }
+  async function changeAdminKey(currentKey,newKey){
+    const current=String(currentKey||key()).trim(),next=String(newKey||"").trim();
+    if(mode==="local"){
+      localStorage.setItem(LOCAL_PIN,next);sessionStorage.setItem("safety_admin_key",next);return {ok:true,mode:"local",message:"Local admin PIN changed."};
+    }
+    const out=await request("change-admin-key",{method:"POST",headers:{"content-type":"application/json","x-admin-key":current},body:JSON.stringify({newKey:next})});
+    if(out?.ok)sessionStorage.setItem("safety_admin_key",next);
+    return out;
+  }
+
   async function saveConfig(config){
     if(mode==="local"){localStorage.setItem(LOCAL_CONFIG,JSON.stringify(config));return {ok:true,mode:"local",savedAt:new Date().toISOString()};}
     return request("save-config",{method:"POST",headers:{"content-type":"application/json","x-admin-key":key()},body:JSON.stringify(config)});
@@ -107,5 +117,5 @@ window.Cloud = (() => {
 
   async function health(){try{return await request("health");}catch(e){return {ok:false,error:e.message};}}
   async function changeLocalPin(pin){if(mode==="local")localStorage.setItem(LOCAL_PIN,pin);}
-  return {getConfig,checkSurveyDevice,submitResponse,submitRaffle,login,getResponses,saveConfig,resetResponses,storageCheck,getActionRecords,saveAction,uploadActionEvidence,getActionEvidence,deleteActionEvidence,getRaffleEntries,drawRaffleWinner,clearRaffleData,health,changeLocalPin,get mode(){return mode;},get lastError(){return lastError;}};
+  return {getConfig,checkSurveyDevice,submitResponse,submitRaffle,login,getResponses,changeAdminKey,saveConfig,resetResponses,storageCheck,getActionRecords,saveAction,uploadActionEvidence,getActionEvidence,deleteActionEvidence,getRaffleEntries,drawRaffleWinner,clearRaffleData,health,changeLocalPin,get mode(){return mode;},get lastError(){return lastError;}};
 })();

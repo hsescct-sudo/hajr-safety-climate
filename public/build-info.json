@@ -1,7 +1,7 @@
 {
-  "build": "V10.15 FINAL CLEAN",
-  "version": "10.15.0-final",
-  "date": "2026-10-01",
+  "build": "V10.16 FINAL CLEAN",
+  "version": "10.16-final",
+  "date": "2026-10-04",
   "architecture": "single public publish directory + Netlify function",
   "roles": [
     "Executive Leader / Director",
@@ -32,9 +32,10 @@
     "Generic platform wording with no legacy project name hard-coded in public pages or generated reports",
     "Public home KPI corrected to 4 Roles in all 11 languages",
     "Listen-to-question waits for device speech voices and uses language-specific locale fallbacks for all 11 languages",
-    "Native XLSX export generated in-browser with the bundled zero-dependency XLSX writer; no HTML-as-.xls extension mismatch warning"
+    "Native XLSX export generated in-browser with the bundled zero-dependency XLSX writer; no HTML-as-.xls extension mismatch warning",
+    "In-app Admin password change with server-side salted PBKDF2-SHA256 credential storage and rotated ADMIN_KEY emergency recovery"
   ],
-  "note": "V10.15 adds a protected Clear Prize Draw Data control that deletes raffle participants, raffle device locks and draw history only; anonymous survey responses and dashboard data are preserved.",
-  "label": "V10.15 FINAL CLEAN",
-  "release": "V10.15 FINAL CLEAN"
+  "note": "V10.16 adds secure in-app Admin password management while preserving the V10.15 Prize Draw reset hotfix and all survey/report features.",
+  "label": "V10.16 FINAL CLEAN",
+  "release": "V10.16 FINAL CLEAN"
 }

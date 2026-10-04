@@ -3,7 +3,33 @@ import { getStore } from "@netlify/blobs";
 export const config = { path: "/api/survey" };
 
 const json=(obj,status=200)=>new Response(JSON.stringify(obj),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store"}});
-const authorized=req=>Boolean(process.env.ADMIN_KEY)&&req.headers.get("x-admin-key")===process.env.ADMIN_KEY;
+const securityStore=()=>getStore("safety-climate-admin-security");
+const ADMIN_CREDENTIAL_KEY="admin-credential-v1";
+const bytesToHex=bytes=>[...bytes].map(b=>b.toString(16).padStart(2,"0")).join("");
+const hexToBytes=hex=>new Uint8Array((String(hex||"").match(/.{1,2}/g)||[]).map(x=>parseInt(x,16)));
+const deriveAdminHash=async(key,saltHex,iterations=120000)=>{
+  const material=await crypto.subtle.importKey("raw",new TextEncoder().encode(String(key||"")),"PBKDF2",false,["deriveBits"]);
+  const bits=await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:hexToBytes(saltHex),iterations},material,256);
+  return bytesToHex(new Uint8Array(bits));
+};
+const authorized=async req=>{
+  const candidate=String(req.headers.get("x-admin-key")||"");
+  if(!candidate)return false;
+  const stored=await securityStore().get(ADMIN_CREDENTIAL_KEY,{type:"json",consistency:"strong"});
+  if(stored?.salt&&stored?.hash){
+    const derived=await deriveAdminHash(candidate,stored.salt,Number(stored.iterations||120000));
+    if(derived===stored.hash)return true;
+    // Emergency recovery: the original Netlify ADMIN_KEY stops working after an in-app
+    // password change. If IT deliberately rotates ADMIN_KEY later, the newly rotated
+    // environment value can be used once as a recovery credential.
+    if(process.env.ADMIN_KEY&&candidate===process.env.ADMIN_KEY&&stored.bootstrapHash){
+      const currentEnvHash=await hashText(process.env.ADMIN_KEY);
+      if(currentEnvHash!==stored.bootstrapHash)return true;
+    }
+    return false;
+  }
+  return Boolean(process.env.ADMIN_KEY)&&candidate===process.env.ADMIN_KEY;
+};
 
 // IMPORTANT: inside Netlify Functions, getStore() receives site ID and write token
 // automatically from the runtime. Passing a manual site ID without the runtime token
@@ -22,7 +48,7 @@ export default async (req, context) => {
   const url=new URL(req.url),action=url.searchParams.get("action")||"";
   try{
     if(action==="health"&&req.method==="GET"){
-      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.15.1-hotfix"});
+      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.16-final"});
     }
 
     if(action==="config"&&req.method==="GET"){
@@ -80,9 +106,25 @@ export default async (req, context) => {
 
     if(action==="login"&&req.method==="POST"){
       if(!process.env.ADMIN_KEY)return json({error:"ADMIN_KEY is not configured"},503);
-      return authorized(req)?json({ok:true}):json({error:"Unauthorized"},401);
+      return (await authorized(req))?json({ok:true}):json({error:"Unauthorized"},401);
     }
-    if(!authorized(req))return json({error:"Unauthorized"},401);
+    if(!(await authorized(req)))return json({error:"Unauthorized"},401);
+
+
+    if(action==="change-admin-key"&&req.method==="POST"){
+      const body=await req.json().catch(()=>({}));
+      const newKey=String(body?.newKey||"").trim();
+      if(newKey.length<8)return json({error:"Password too short",message:"Use at least 8 characters for the new admin password."},400);
+      if(newKey.length>128)return json({error:"Password too long",message:"Use 128 characters or fewer."},400);
+      const saltBytes=new Uint8Array(16);crypto.getRandomValues(saltBytes);
+      const salt=bytesToHex(saltBytes),iterations=120000;
+      const hash=await deriveAdminHash(newKey,salt,iterations);
+      const bootstrapHash=process.env.ADMIN_KEY?await hashText(process.env.ADMIN_KEY):"";
+      await securityStore().setJSON(ADMIN_CREDENTIAL_KEY,{version:1,algorithm:"PBKDF2-SHA256",salt,iterations,hash,bootstrapHash,updatedAt:new Date().toISOString()});
+      const verify=await securityStore().get(ADMIN_CREDENTIAL_KEY,{type:"json",consistency:"strong"});
+      if(!verify?.hash||verify.hash!==hash)return json({error:"Password update verification failed"},500);
+      return json({ok:true,changedAt:verify.updatedAt,message:"Admin password changed successfully."});
+    }
 
     if(action==="responses"&&req.method==="GET"){
       const store=responseStore(),listed=await store.list();
@@ -196,7 +238,7 @@ export default async (req, context) => {
       // Store a clean copy and then read the exact object back with strong
       // consistency. Returning that raw stored object lets the admin verify the
       // save without comparing against a migrated/default-normalized config.
-      const stored={...incoming,version:"10.15.1-hotfix",schema:"safety-climate-v10",updatedAt:new Date().toISOString()};
+      const stored={...incoming,version:"10.16-final",schema:"safety-climate-v10",updatedAt:new Date().toISOString()};
       const store=configStore();
       await store.setJSON("main",stored);
       const verified=await store.get("main",{type:"json",consistency:"strong"});

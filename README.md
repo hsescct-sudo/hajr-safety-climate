@@ -1,19 +1,13 @@
-V10.15.1 RAFFLE RESET HOTFIX
+# Safety Climate V10.16 — Admin Password Update
 
-Fixes: Admin > Prize Draw > Clear Prize Draw Data returned "Not found".
-Cause: the frontend button called action=raffle-reset, but the deployed survey function did not contain the raffle-reset route.
+Upload these files over the existing project, keeping the same folder paths.
 
-Upload this file preserving the same path:
-netlify/functions/survey.mjs
+New feature:
+- Admin > Data & Reset > Admin Security
+- Change production Admin password from inside the site.
+- New password becomes active immediately.
+- Password is stored server-side as a salted PBKDF2-SHA256 one-way hash.
+- Original Netlify ADMIN_KEY becomes the initial bootstrap only.
+- Emergency recovery: deliberately rotate ADMIN_KEY in Netlify if the in-app password is forgotten, log in with the newly rotated value, then set a new in-app password.
 
-The reset deletes ONLY:
-- Prize Draw participants
-- Prize Draw device locks
-- Prize Draw history / previous winners
-
-It does NOT delete:
-- Survey responses
-- Survey device locks
-- Campaigns
-- Configuration
-- Dashboard data
+This update keeps all V10.15.1 Prize Draw reset fixes and existing survey/report functionality.
