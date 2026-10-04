@@ -35,7 +35,7 @@ window.Admin = (() => {
     if(changeSerial===savedSerial && !manual){setSaveState('','Saved');return;}
     saving=true;const startSerial=changeSerial;setSaveState('saving','Saving…');
     try{
-      config.version='10.14-final';config.release='10.14-final';config.schema='safety-climate-v10';
+      config.version='10.15-final';config.release='10.15-final';config.schema='safety-climate-v10';
       const snapshot=Core.clone(config);
       const expected=persistSignature(snapshot);
       const out=await Cloud.saveConfig(snapshot);
@@ -268,6 +268,16 @@ window.Admin = (() => {
   function setSurveyControl(k,v){config.surveyControls??={oneResponsePerDevice:true};config.surveyControls[k]=v;renderSurveyControls();markDirty();}
   async function drawRaffleWinner(){if(!raffleEntries.length){alert('No raffle entries are available.');return;}if(!confirm(`Draw one random winner from ${raffleEntries.length} unique entries?`))return;try{const out=await Cloud.drawRaffleWinner();alert(`Winner: ${out.winner?.badge||''}${out.winner?.name?' — '+out.winner.name:''}`);await refreshRaffle();}catch(e){alert('Could not draw winner: '+e.message);}}
   function exportRaffleCSV(){const rows=[['Badge / ID','Name','Campaign','Language','Entered At'],...raffleEntries.map(x=>[x.badge||'',x.name||'',x.campaign||'',x.language||'',x.enteredAt||''])];const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Safety_Climate_Raffle_Participants_${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}
-  return {login,tab,refreshResponses,setDashboardDivision,setDashboardFactor,setDashboardSearch,clearDashboardFilters,openQuestionModal,closeQuestionModal,modalBackdrop,renderSettings,setProjectCode,setProjectText,setTheme,setCampaignName,setCampaignStatus,renderCampaigns,createCampaign,updateCampaign,activateCampaign,closeCampaign,archiveCampaign,addLogo,replaceLogo,toggleLogo,deleteLogo,saveNow,renderQuestionBuilder,setQuestion,setQuestionText,addQuestion,moveQuestion,duplicateQuestion,deleteQuestion,addOpenQuestion,setOpen,deleteOpen,renderAudience,setLanguage,setRole,setRoleText,setDivisions,setDivisionTranslation,refreshRaffle,setRaffleSetting,renderSurveyControls,setSurveyControl,drawRaffleWinner,exportRaffleCSV,testStorage,resetResponses,exportConfig,exportJSON,exportCSV,changePin,getConfig:()=>config,getResponses:()=>responses,notifyDashboard};
+  async function clearRaffleData(){
+    if(!confirm('Delete ALL Prize Draw participants, device locks and draw history? Survey responses will NOT be deleted.'))return;
+    if(!confirm('Final confirmation: clear Prize Draw data only? This cannot be undone unless you exported the participant list.'))return;
+    try{
+      const out=await Cloud.clearRaffleData();
+      raffleEntries=[];raffleDraws=[];renderRaffle();
+      const d=out?.deleted||{};
+      alert(`Prize Draw data cleared. Survey responses were NOT touched.\nParticipants deleted: ${d.entries??0}\nDevice locks deleted: ${d.deviceLocks??0}\nDraw history deleted: ${d.drawHistory??0}`);
+    }catch(e){alert('Could not clear Prize Draw data: '+e.message);}
+  }
+  return {login,tab,refreshResponses,setDashboardDivision,setDashboardFactor,setDashboardSearch,clearDashboardFilters,openQuestionModal,closeQuestionModal,modalBackdrop,renderSettings,setProjectCode,setProjectText,setTheme,setCampaignName,setCampaignStatus,renderCampaigns,createCampaign,updateCampaign,activateCampaign,closeCampaign,archiveCampaign,addLogo,replaceLogo,toggleLogo,deleteLogo,saveNow,renderQuestionBuilder,setQuestion,setQuestionText,addQuestion,moveQuestion,duplicateQuestion,deleteQuestion,addOpenQuestion,setOpen,deleteOpen,renderAudience,setLanguage,setRole,setRoleText,setDivisions,setDivisionTranslation,refreshRaffle,setRaffleSetting,renderSurveyControls,setSurveyControl,drawRaffleWinner,exportRaffleCSV,clearRaffleData,testStorage,resetResponses,exportConfig,exportJSON,exportCSV,changePin,getConfig:()=>config,getResponses:()=>responses,notifyDashboard};
 })();
 if(sessionStorage.getItem('safety_admin_key')){document.getElementById('adminKey').value=sessionStorage.getItem('safety_admin_key');Admin.login();}

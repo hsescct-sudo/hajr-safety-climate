@@ -1,8 +1,12 @@
-# Safety Climate Survey Platform — V10.14 FINAL CLEAN
+# Safety Climate V10.15 — Prize Draw Data Reset
 
-V10.14 fixes the latest client comments while preserving the V10.13 dashboard/report design, campaigns, responses, actions, raffle data and single-device controls.
+New admin control: **Clear Prize Draw Data** in the Prize Draw tab. It deletes raffle participants, raffle device locks and raffle draw history only. It does **not** delete survey responses, dashboard data, campaigns, questions or project settings. Two confirmations are required.
 
-## V10.14 fixes completed
+# Safety Climate Survey Platform — V10.15 FINAL CLEAN
+
+V10.15 fixes the latest client comments while preserving the V10.13 dashboard/report design, campaigns, responses, actions, raffle data and single-device controls.
+
+## V10.15 fixes completed
 
 - **4 Roles:** the public KPI now says **Roles** (not Questionnaires) and the wording is forced across all 11 languages during config migration.
 - **Listen to Question:** voice loading now waits for browser/device voices and tries multiple language locale variants (including Filipino/Tagalog, Bangla, Urdu, Arabic, Nepali, Telugu, Tamil, Malayalam and Chinese).
@@ -25,7 +29,7 @@ Choose:
 Upload the **contents** of this folder to the existing GitHub repository so `public`, `netlify`, `netlify.toml` and `package.json` remain at repository root. Keep the existing Netlify `ADMIN_KEY`.
 
 After Netlify shows **Published**:
-1. Open `/admin.html` and confirm **V10.14 FINAL CLEAN**.
+1. Open `/admin.html` and confirm **V10.15 FINAL CLEAN**.
 2. Confirm the **8 Safety Climate Factors** chart shows green / amber / red stacked percentages.
 3. Data & Reset → confirm **Enforce one survey response per browser/device per campaign** is checked.
 4. Run **Test central storage**.

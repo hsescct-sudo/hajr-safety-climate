@@ -1,6 +1,6 @@
 {
-  "build": "V10.14 FINAL CLEAN",
-  "version": "10.14.0-final",
+  "build": "V10.15 FINAL CLEAN",
+  "version": "10.15.0-final",
   "date": "2026-10-01",
   "architecture": "single public publish directory + Netlify function",
   "roles": [
@@ -34,7 +34,7 @@
     "Listen-to-question waits for device speech voices and uses language-specific locale fallbacks for all 11 languages",
     "Native XLSX export generated in-browser with the bundled zero-dependency XLSX writer; no HTML-as-.xls extension mismatch warning"
   ],
-  "note": "V10.14 fixes the client comments: 4 Roles wording, more reliable multilingual listen-to-question, and true XLSX Excel export while preserving the V10.13 report/dashboard structure.",
-  "label": "V10.14 FINAL CLEAN",
-  "release": "V10.14 FINAL CLEAN"
+  "note": "V10.15 adds a protected Clear Prize Draw Data control that deletes raffle participants, raffle device locks and draw history only; anonymous survey responses and dashboard data are preserved.",
+  "label": "V10.15 FINAL CLEAN",
+  "release": "V10.15 FINAL CLEAN"
 }
