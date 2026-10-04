@@ -22,7 +22,7 @@ export default async (req, context) => {
   const url=new URL(req.url),action=url.searchParams.get("action")||"";
   try{
     if(action==="health"&&req.method==="GET"){
-      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.15-final"});
+      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.15.1-hotfix"});
     }
 
     if(action==="config"&&req.method==="GET"){
@@ -111,6 +111,27 @@ export default async (req, context) => {
       return json({ok:true,winner,drawnAt:draw.drawnAt});
     }
 
+    if(action==="raffle-reset"&&req.method==="POST"){
+      // Prize Draw reset only. Anonymous survey responses and survey-device locks are intentionally preserved.
+      const clearStore=async store=>{
+        let total=0,cursor=undefined;
+        do{
+          const listed=await store.list(cursor?{cursor}:undefined);
+          const blobs=listed?.blobs||[];
+          await Promise.all(blobs.map(x=>store.delete(x.key)));
+          total+=blobs.length;
+          cursor=listed?.next_cursor||listed?.nextCursor||null;
+        }while(cursor);
+        return total;
+      };
+      const [entries,deviceLocks,drawHistory]=await Promise.all([
+        clearStore(raffleStore()),
+        clearStore(raffleDeviceStore()),
+        clearStore(raffleDrawStore())
+      ]);
+      return json({ok:true,deleted:{entries,deviceLocks,drawHistory},message:"Prize Draw data cleared. Survey responses were not touched."});
+    }
+
     if(action==="action-records"&&req.method==="GET"){
       const store=actionStore(),listed=await store.list();
       const records=(await Promise.all(listed.blobs.map(x=>store.get(x.key,{type:"json",consistency:"strong"})))).filter(Boolean);
@@ -175,7 +196,7 @@ export default async (req, context) => {
       // Store a clean copy and then read the exact object back with strong
       // consistency. Returning that raw stored object lets the admin verify the
       // save without comparing against a migrated/default-normalized config.
-      const stored={...incoming,version:"10.15-final",schema:"safety-climate-v10",updatedAt:new Date().toISOString()};
+      const stored={...incoming,version:"10.15.1-hotfix",schema:"safety-climate-v10",updatedAt:new Date().toISOString()};
       const store=configStore();
       await store.setJSON("main",stored);
       const verified=await store.get("main",{type:"json",consistency:"strong"});
