@@ -106,16 +106,6 @@ window.Cloud = (() => {
     if(mode==="local")return {ok:true};
     return request("delete-action-evidence",{method:"DELETE",headers:{"content-type":"application/json","x-admin-key":key()},body:JSON.stringify({actionId,fileId:fileMeta.id})});
   }
-  async function deleteAction(actionId,meta={}){
-    const id=String(actionId||'').trim();if(!id)throw new Error('Missing action id');
-    if(mode==="local"){
-      const arr=await getActionRecords(),idx=arr.findIndex(x=>x.id===id),old=idx>=0?arr[idx]:meta;
-      const suppression={id,suppressed:true,deleted:true,deletedAt:new Date().toISOString(),campaign:old?.campaign||meta?.campaign||'',title:old?.title||meta?.title||''};
-      if(idx>=0)arr[idx]=suppression;else arr.push(suppression);
-      localStorage.setItem("safety_v10_actions",JSON.stringify(arr));return {ok:true,suppression,deletedEvidence:0};
-    }
-    return request("delete-action",{method:"POST",headers:{"content-type":"application/json","x-admin-key":key()},body:JSON.stringify({id,campaign:meta?.campaign||'',title:meta?.title||''})});
-  }
 
   async function submitRaffle(record){
     if(mode==='local'){const arr=JSON.parse(localStorage.getItem(LOCAL_RAFFLE)||'[]'),badge=String(record.badge||'').trim().toUpperCase();if(arr.some(x=>String(x.badge||'').toUpperCase()===badge)){const e=new Error('Duplicate badge');e.status=409;e.payload={code:'DUPLICATE_BADGE'};throw e;}arr.push({...record,badge,enteredAt:new Date().toISOString()});localStorage.setItem(LOCAL_RAFFLE,JSON.stringify(arr));return {ok:true};}
@@ -127,5 +117,5 @@ window.Cloud = (() => {
 
   async function health(){try{return await request("health");}catch(e){return {ok:false,error:e.message};}}
   async function changeLocalPin(pin){if(mode==="local")localStorage.setItem(LOCAL_PIN,pin);}
-  return {getConfig,checkSurveyDevice,submitResponse,submitRaffle,login,getResponses,changeAdminKey,saveConfig,resetResponses,storageCheck,getActionRecords,saveAction,uploadActionEvidence,getActionEvidence,deleteActionEvidence,deleteAction,getRaffleEntries,drawRaffleWinner,clearRaffleData,health,changeLocalPin,get mode(){return mode;},get lastError(){return lastError;}};
+  return {getConfig,checkSurveyDevice,submitResponse,submitRaffle,login,getResponses,changeAdminKey,saveConfig,resetResponses,storageCheck,getActionRecords,saveAction,uploadActionEvidence,getActionEvidence,deleteActionEvidence,getRaffleEntries,drawRaffleWinner,clearRaffleData,health,changeLocalPin,get mode(){return mode;},get lastError(){return lastError;}};
 })();
