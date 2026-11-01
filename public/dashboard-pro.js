@@ -60,7 +60,7 @@ window.PowerBIDashboard = (() => {
   function perfClass(value){if(value==null)return 'none';const green=Number(config?.performanceThresholds?.green??75),amber=Number(config?.performanceThresholds?.amber??60);return value>=green?'green':value>=amber?'amber':'red';}
   function barRow(label,value,attrs=''){return `<button type="button" class="pbi-bar-row perf-${perfClass(value)}" ${attrs}><span class="pbi-bar-label">${esc(label)}</span><span class="pbi-bar-track"><i style="width:${Math.max(0,Math.min(100,value||0))}%;background:${perfColor(value)}"></i></span><b>${value==null?'—':value.toFixed(1)+'%'}</b></button>`;}
   function factorStackRow(x,attrs=''){return `<button type="button" class="pbi-factor-stack-row" ${attrs}><span class="pbi-bar-label">${esc(x.label)}</span>${x.n?stack(x.score,x.neutral,x.bad):'<div class="pbi-stack"></div>'}</button>`;}
-  function renderKPIs(){const rs=filtered(),av=answers(rs).map(x=>x.v),p=parts(av),comments=rs.reduce((n,r)=>n+(r.answers||[]).filter(a=>(a.comment||'').trim()).length+(r.openAnswers||[]).filter(o=>(o.text||'').trim()).length,0);const idx=mean(av);const actions=generateActions(rs);$('pbiResponses').textContent=rs.length;$('pbiFav').textContent=av.length?p.good.toFixed(1)+'%':'—';$('pbiNeutral').textContent=av.length?p.neutral.toFixed(1)+'%':'—';$('pbiUnfav').textContent=av.length?p.bad.toFixed(1)+'%':'—';$('pbiIndex').textContent=idx==null?'—':idx.toFixed(2);$('pbiComments').textContent=comments;$('pbiHigh').textContent=actions.filter(a=>a.priority==='High').length;$('pbiActions').textContent=actions.length;renderDonut(p);}
+  function renderKPIs(){const rs=filtered(),av=answers(rs).map(x=>x.v),p=parts(av),comments=rs.reduce((n,r)=>n+(r.answers||[]).filter(a=>(a.comment||'').trim()).length+(r.openAnswers||[]).filter(o=>(o.text||'').trim()).length,0);const idx=mean(av);const actions=managedActions(rs);$('pbiResponses').textContent=rs.length;$('pbiFav').textContent=av.length?p.good.toFixed(1)+'%':'—';$('pbiNeutral').textContent=av.length?p.neutral.toFixed(1)+'%':'—';$('pbiUnfav').textContent=av.length?p.bad.toFixed(1)+'%':'—';$('pbiIndex').textContent=idx==null?'—':idx.toFixed(2);$('pbiComments').textContent=comments;$('pbiHigh').textContent=actions.filter(a=>a.priority==='High'&&a.status!=='Closed').length;$('pbiActions').textContent=actions.length;renderDonut(p);}
   function renderDonut(p){const host=$('pbiDonut');if(!host)return;const a=p.bad*3.6,b=(p.bad+p.neutral)*3.6;host.innerHTML=`<div class="pbi-donut" style="--badAngle:${a}deg;--neutralAngle:${b}deg"><div><b>${p.n?p.good.toFixed(0)+'%':'—'}</b><span>Favourable</span><small>${p.n} answers</small></div></div>`;$('pbiDonutLegend').innerHTML=`<div><i class="pbi-good"></i><span>Favourable</span><b>${p.n?p.good.toFixed(1)+'%':'—'}</b></div><div><i class="pbi-neutral"></i><span>Neutral</span><b>${p.n?p.neutral.toFixed(1)+'%':'—'}</b></div><div><i class="pbi-bad"></i><span>Unfavourable</span><b>${p.n?p.bad.toFixed(1)+'%':'—'}</b></div>`;}
   function roleScores(){const base=filtered(),out=[];(config?.roles||[]).filter(r=>r.enabled!==false).forEach(rr=>{const rs=base.filter(x=>role(x.role)===rr.id),vals=answers(rs).map(x=>x.v);out.push({id:rr.id,label:rlabel(rr.id),score:vals.length?pct(vals,v=>v>=4,1):null,n:rs.length});});return out;}
   function renderRoleBars(){const host=$('pbiRoleBars'),data=roleScores();host.innerHTML=data.map(x=>barRow(`${x.label} · ${x.n} resp.`,x.score,`data-pbi-role="${esc(x.id)}"`)).join('')||'<div class="no-data">No role data.</div>';host.querySelectorAll('[data-pbi-role]').forEach(b=>b.addEventListener('click',()=>{filters.role=filters.role===b.dataset.pbiRole?'All':b.dataset.pbiRole;syncFilters();render();}));
@@ -105,10 +105,11 @@ window.PowerBIDashboard = (() => {
     return out.sort((a,b)=>(rank[a.priority]??9)-(rank[b.priority]??9)||(b.bad??0)-(a.bad??0));
   }
   function managedActions(rs=filtered()){
-    const generated=generateActions(rs),map=new Map(actionRecords.map(x=>[x.id,x]));
+    const suppressed=new Set(actionRecords.filter(r=>r?.suppressed===true||r?.deleted===true).map(r=>r.id));
+    const generated=generateActions(rs).filter(g=>!suppressed.has(g.id)),map=new Map(actionRecords.filter(r=>!suppressed.has(r.id)).map(x=>[x.id,x]));
     const merged=generated.map(g=>{const p=map.get(g.id)||{};return {...g,...p,id:g.id,title:p.title||g.title,evidence:p.evidence||g.evidence,recommendedAction:p.recommendedAction||p.action||g.action,action:p.recommendedAction||p.action||g.action,owner:p.owner||g.owner,target:p.target||g.target,status:p.status||g.status,attachments:Array.isArray(p.attachments)?p.attachments:[],history:Array.isArray(p.history)?p.history:[],adminResponse:p.adminResponse||'',closureComment:p.closureComment||''};});
     const present=new Set(merged.map(x=>x.id));
-    actionRecords.filter(r=>!present.has(r.id)&&(filters.campaign==='All'||r.campaign===filters.campaign)).forEach(r=>merged.push({...r,recommendedAction:r.recommendedAction||r.action||'',attachments:Array.isArray(r.attachments)?r.attachments:[],history:Array.isArray(r.history)?r.history:[]}));
+    actionRecords.filter(r=>!suppressed.has(r.id)&&!present.has(r.id)&&(filters.campaign==='All'||r.campaign===filters.campaign)).forEach(r=>merged.push({...r,recommendedAction:r.recommendedAction||r.action||'',attachments:Array.isArray(r.attachments)?r.attachments:[],history:Array.isArray(r.history)?r.history:[]}));
     const rank={High:0,Medium:1,Low:2};return merged.sort((a,b)=>(rank[a.priority]??9)-(rank[b.priority]??9)||String(a.status||'').localeCompare(String(b.status||'')));
   }
   function statusClass(x){return String(x||'Open').toLowerCase().replace(/\s+/g,'-');}
@@ -232,6 +233,19 @@ window.PowerBIDashboard = (() => {
     $('actionSaveMessage').textContent='Saving action…';
     try{const out=await Cloud.saveAction(record),saved=out?.record||record,i=actionRecords.findIndex(x=>x.id===saved.id);if(i>=0)actionRecords[i]=saved;else actionRecords.push(saved);draftAction=JSON.parse(JSON.stringify(saved));$('actionSaveMessage').textContent='Saved centrally.';renderActionAttachments();renderActionHistory();renderActions();}
     catch(e){$('actionSaveMessage').textContent='Save failed: '+e.message;alert('Could not save action: '+e.message);}
+  }
+  async function deleteActionFromModal(){
+    if(!draftAction?.id)return;
+    const ok=confirm('Delete this action only?\n\nThis will remove the selected action, its action history and attached evidence. Survey responses, comments, campaigns and dashboard data will NOT be deleted. The same historic/test trigger will also be suppressed so it does not reappear.');
+    if(!ok)return;
+    $('actionSaveMessage').textContent='Deleting action…';
+    try{
+      const out=await Cloud.deleteAction(draftAction.id,{campaign:draftAction.campaign||actionCampaign(),title:draftAction.title||''});
+      const tomb=out?.suppression||{id:draftAction.id,suppressed:true,deleted:true,deletedAt:new Date().toISOString(),campaign:draftAction.campaign||actionCampaign(),title:draftAction.title||''};
+      const i=actionRecords.findIndex(x=>x.id===tomb.id);if(i>=0)actionRecords[i]=tomb;else actionRecords.push(tomb);
+      closeActionModal();renderActions();renderKPIs();
+      alert('Action deleted successfully. Survey responses were not affected.');
+    }catch(e){$('actionSaveMessage').textContent='Delete failed: '+e.message;alert('Could not delete action: '+e.message);}
   }
 
   const htmlEsc=esc;
@@ -585,7 +599,7 @@ Action status: ${ins.open} open / in progress · ${ins.closed} closed`,{x:.55,y:
     $('pbiCompareA')?.addEventListener('change',()=>{comparisonSelection=null;renderComparison();});$('pbiCompareB')?.addEventListener('change',()=>{comparisonSelection=null;renderComparison();});$('pbiCompareView')?.addEventListener('change',()=>{comparisonView=$('pbiCompareView').value;renderComparison();});$('pbiCompareClearCross')?.addEventListener('click',clearComparisonCross);$('pbiCompareSwap')?.addEventListener('click',()=>{const a=$('pbiCompareA'),b=$('pbiCompareB'),v=a.value;a.value=b.value;b.value=v;comparisonSelection=null;renderComparison();});
     $('actionModalClose')?.addEventListener('click',closeActionModal);$('actionModal')?.addEventListener('click',e=>{if(e.target===$('actionModal'))closeActionModal();});
     $('actionFiles')?.addEventListener('change',e=>addActionEvidence([...e.target.files]));
-    $('actionSaveBtn')?.addEventListener('click',()=>saveActionFromModal(false));$('actionCloseBtn')?.addEventListener('click',()=>saveActionFromModal(true));
+    $('actionSaveBtn')?.addEventListener('click',()=>saveActionFromModal(false));$('actionCloseBtn')?.addEventListener('click',()=>saveActionFromModal(true));$('actionDeleteBtn')?.addEventListener('click',deleteActionFromModal);
     showPage('overview');window.addEventListener('safety:data',initData);setTimeout(initData,100);
   }
   bind();

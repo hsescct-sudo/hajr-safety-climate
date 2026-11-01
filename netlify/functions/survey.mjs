@@ -48,7 +48,7 @@ export default async (req, context) => {
   const url=new URL(req.url),action=url.searchParams.get("action")||"";
   try{
     if(action==="health"&&req.method==="GET"){
-      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.16-final"});
+      return json({ok:true,site:context?.site?.name||null,siteID:context?.site?.id||null,deployContext:context?.deploy?.context||null,published:context?.deploy?.published??null,version:"10.16.1-delete-action-hotfix"});
     }
 
     if(action==="config"&&req.method==="GET"){
@@ -192,6 +192,27 @@ export default async (req, context) => {
       await actionStore().setJSON(id,record);
       const verified=await actionStore().get(id,{type:"json",consistency:"strong"});
       return json({ok:true,record:verified});
+    }
+
+    if(action==="delete-action"&&req.method==="POST"){
+      const body=await req.json().catch(()=>({}));
+      const id=String(body?.id||"").replace(/[^a-zA-Z0-9._-]/g,"_").slice(0,180);
+      if(!id)return json({error:"Invalid action id"},400);
+      const now=new Date().toISOString();
+      const current=await actionStore().get(id,{type:"json",consistency:"strong"});
+      const attachments=Array.isArray(current?.attachments)?current.attachments:[];
+      let deletedEvidence=0;
+      for(const file of attachments){
+        const fileId=String(file?.id||"").replace(/[^a-zA-Z0-9._-]/g,"_").slice(0,180);
+        if(!fileId)continue;
+        try{await actionFileStore().delete(`${id}__${fileId}`);deletedEvidence++;}catch(_){}
+      }
+      // Keep only a tiny suppression tombstone. This prevents the same historic/test
+      // trigger from being auto-generated again while removing the live action content.
+      const suppression={id,suppressed:true,deleted:true,deletedAt:now,campaign:String(current?.campaign||body?.campaign||""),title:String(current?.title||body?.title||"").slice(0,240)};
+      await actionStore().setJSON(id,suppression);
+      const verified=await actionStore().get(id,{type:"json",consistency:"strong"});
+      return json({ok:true,suppression:verified,deletedEvidence,message:"Action deleted and suppressed. Survey responses were not affected."});
     }
 
     if(action==="upload-action-evidence"&&req.method==="POST"){
